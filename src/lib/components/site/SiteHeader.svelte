@@ -1,14 +1,17 @@
 <script lang="ts">
-	import type { Pathname } from '$app/types';
 	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
 	import * as m from '$lib/paraglide/messages.js';
-	import { getLocale, locales, localizeHref } from '$lib/paraglide/runtime';
+	import { getLocaleForUrl, locales, setLocale } from '$lib/paraglide/runtime';
 
-	const locale = $derived(getLocale());
+	const locale = $derived.by(() => {
+		page.url.href;
+		return getLocaleForUrl(page.url.href);
+	});
 
-	function localeHref(target: (typeof locales)[number]) {
-		return resolve(localizeHref(page.url.pathname as Pathname, { locale: target }) as Pathname);
+	function switchLocale(target: (typeof locales)[number]) {
+		if (locale === target) return;
+		setLocale(target);
 	}
 </script>
 
@@ -23,16 +26,16 @@
 			{#if index > 0}
 				<span class="text-muted-foreground" aria-hidden="true">|</span>
 			{/if}
-			<a
-				href={localeHref(loc)}
-				data-sveltekit-reload
+			<button
+				type="button"
 				class="rounded px-2 py-1 transition-colors {locale === loc
 					? 'bg-brand font-medium text-brand-foreground'
 					: 'text-muted-foreground hover:text-foreground'}"
-				aria-current={locale === loc ? 'page' : undefined}
+				aria-current={locale === loc ? 'true' : undefined}
+				onclick={() => switchLocale(loc)}
 			>
 				{loc === 'it' ? m.locale_it() : m.locale_en()}
-			</a>
+			</button>
 		{/each}
 	</nav>
 </header>
