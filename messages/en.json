@@ -1,4 +1,16 @@
 {
 	"$schema": "https://inlang.com/schema/inlang-message-format",
-	"hello_world": "Hello, {name} from en!"
+	"site_name": "Knitting Tools",
+	"site_tagline": "Free tools for knitting — pick what you need.",
+	"locale_it": "IT",
+	"locale_en": "EN",
+	"catalog_heading": "Tools",
+	"back_to_catalog": "All tools",
+	"tool_needle_title": "Needle size chart",
+	"tool_needle_card_teaser": "Look up metric and US knitting needle sizes.",
+	"tool_needle_portico_1": "Find the metric (mm) and US label for a knitting needle size.",
+	"tool_needle_portico_2": "Useful when you swap needles or read a pattern written for another sizing system.",
+	"tool_needle_portico_3": "Pick a metric size below to see the matching US designation.",
+	"tool_needle_table_mm": "Metric (mm)",
+	"tool_needle_table_us": "US"
 }

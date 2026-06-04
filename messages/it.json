@@ -1,4 +1,16 @@
 {
 	"$schema": "https://inlang.com/schema/inlang-message-format",
-	"hello_world": "Hello, {name} from it!"
+	"site_name": "Strumenti maglieria",
+	"site_tagline": "Strumenti gratuiti per la maglieria — scegli quello che ti serve.",
+	"locale_it": "IT",
+	"locale_en": "EN",
+	"catalog_heading": "Strumenti",
+	"back_to_catalog": "Tutti gli strumenti",
+	"tool_needle_title": "Tabella ferri",
+	"tool_needle_card_teaser": "Consulta le misure in mm e la numerazione US dei ferri da maglia.",
+	"tool_needle_portico_1": "Trova il valore in millimetri e la sigla US corrispondente per un ferro da maglia.",
+	"tool_needle_portico_2": "Utile quando cambi ferro o leggi uno schema scritto con un altro sistema di misure.",
+	"tool_needle_portico_3": "Scegli una misura in mm qui sotto per vedere la numerazione US corrispondente.",
+	"tool_needle_table_mm": "Metrico (mm)",
+	"tool_needle_table_us": "US"
 }
