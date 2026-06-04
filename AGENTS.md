@@ -3,6 +3,19 @@
 - **Language**: TypeScript
 - **Package Manager**: npm
 - **Add-ons**: prettier, eslint, vitest, playwright, tailwindcss, sveltekit-adapter, mcp, paraglide
+- **Design system**: [shadcn-svelte](https://www.shadcn-svelte.com/)
+
+---
+
+## UI Components
+
+When you need UI components (buttons, dialogs, forms, etc.), use [shadcn-svelte](https://www.shadcn-svelte.com/). The project is already initialized — see `components.json` for aliases and configuration.
+
+- **Docs & catalog**: https://www.shadcn-svelte.com/
+- **Add a component**: `npx shadcn-svelte@latest add <component>`
+- **Import path**: `$lib/components/ui/<component>/index.js` (e.g. `$lib/components/ui/button/index.js`)
+
+Do not build custom UI primitives from scratch when an equivalent shadcn-svelte component exists. Add the component via the CLI, then customize it in `$lib/components/ui/` if needed.
 
 ---
 
