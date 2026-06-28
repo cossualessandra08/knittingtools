@@ -16,3 +16,12 @@ test('upload shows preview and enables export', async ({ page }) => {
 	await page.getByRole('button', { name: /^Export$/i }).click();
 	await expect(page.getByRole('button', { name: /Export for AYAB/i })).toBeEnabled();
 });
+
+test('editor uses two columns on tablet-width viewports', async ({ page }) => {
+	await page.setViewportSize({ width: 700, height: 900 });
+	await page.goto('tools/jacquard-pattern/');
+	const layout = page.locator('.jacquard-editor-layout');
+	const columns = await layout.evaluate((el) => getComputedStyle(el).gridTemplateColumns);
+	expect(columns).not.toBe('700px');
+	expect(columns).toMatch(/\d+(\.\d+)?px\s+\d+(\.\d+)?px/);
+});

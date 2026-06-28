@@ -32,7 +32,7 @@
 
 <div class="my-10 border-t border-border"></div>
 
-<section class={wide ? 'max-w-6xl' : 'max-w-2xl'}>
+<section class={wide ? 'w-full' : 'max-w-2xl'}>
 	{@render children()}
 </section>
 

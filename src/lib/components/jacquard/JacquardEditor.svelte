@@ -205,8 +205,8 @@
 		{/each}
 	</nav>
 
-	<div class="grid gap-8 md:grid-cols-[minmax(280px,1fr)_minmax(0,2fr)]">
-	<div class="order-2 min-w-0 space-y-6 md:order-1">
+	<div class="jacquard-editor-layout">
+		<div class="jacquard-editor-controls min-w-0 space-y-6">
 		{#if activeStep === 'image'}
 				<div class="space-y-4">
 					<ImageUploadZone onFile={handleFile} onBrowse={openFilePicker} />
@@ -321,7 +321,7 @@
 			</div>
 		</div>
 
-		<aside class="order-1 min-w-0 space-y-3 md:order-2 md:sticky md:top-4 md:self-start">
+		<aside class="jacquard-editor-preview min-w-0 space-y-3">
 			<div class="flex flex-wrap items-center justify-between gap-2">
 				<h2 class="text-sm font-semibold tracking-wide text-foreground uppercase">
 					{jacquard.preview}
