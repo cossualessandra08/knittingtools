@@ -1,13 +1,7 @@
 import type { Pathname } from '$app/types';
-import { base, resolve } from '$app/paths';
+import { resolve } from '$app/paths';
+import { effectiveHref } from '$lib/i18n/effective-url.js';
 import { deLocalizeUrl, localizeHref, type Locale } from '$lib/paraglide/runtime';
-
-function pathnameWithoutBase(pathname: string) {
-	if (!base) return pathname;
-	if (pathname === base || pathname === `${base}/`) return '/';
-	if (pathname.startsWith(`${base}/`)) return pathname.slice(base.length) || '/';
-	return pathname;
-}
 
 /** Match SvelteKit `trailingSlash: 'always'` for GitHub Pages directory URLs. */
 function withTrailingSlash(path: string): string {
@@ -15,8 +9,8 @@ function withTrailingSlash(path: string): string {
 	return `${path}/`;
 }
 
-function delocalizedPathname(pathname: string, origin = 'http://local') {
-	return deLocalizeUrl(new URL(pathnameWithoutBase(pathname), origin)).pathname;
+function delocalizedPathname(href: string) {
+	return deLocalizeUrl(new URL(effectiveHref(href))).pathname;
 }
 
 export function localizedHref(pathname: string, locale?: Locale): string {
@@ -28,7 +22,7 @@ export function localizedHref(pathname: string, locale?: Locale): string {
 }
 
 export function localizedHrefFromPageUrl(url: URL, locale: Locale): string {
-	const delocalized = delocalizedPathname(url.pathname, url.origin);
+	const delocalized = deLocalizeUrl(new URL(effectiveHref(url.href))).pathname;
 	return resolve(
 		withTrailingSlash(localizeHref(delocalized as Pathname, { locale })) as Pathname
 	);

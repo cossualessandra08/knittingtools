@@ -1,17 +1,7 @@
 import type { Handle } from '@sveltejs/kit';
-import { base } from '$app/paths';
 import { getTextDirection } from '$lib/paraglide/runtime';
 import { paraglideMiddleware } from '$lib/paraglide/server';
-
-function effectiveUrl(url: URL) {
-	if (!base) return url;
-	if (url.pathname === base || url.pathname === `${base}/`) {
-		url.pathname = '/';
-	} else if (url.pathname.startsWith(`${base}/`)) {
-		url.pathname = url.pathname.slice(base.length) || '/';
-	}
-	return url;
-}
+import { effectiveHref } from '$lib/i18n/effective-url.js';
 
 const handleParaglide: Handle = ({ event, resolve }) =>
 	paraglideMiddleware(
@@ -26,7 +16,7 @@ const handleParaglide: Handle = ({ event, resolve }) =>
 						.replace('%paraglide.dir%', getTextDirection(locale))
 			});
 		},
-		{ effectiveRequestUrl: () => effectiveUrl(new URL(event.url)) }
+		{ effectiveRequestUrl: () => new URL(effectiveHref(event.url.href)) }
 	);
 
 export const handle: Handle = handleParaglide;
