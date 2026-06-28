@@ -41,7 +41,7 @@
 <p class="mt-12">
 	<a
 		href={localizedHref('/')}
-		data-sveltekit-reload
+		rel="external"
 		class="font-medium text-brand hover:underline"
 	>
 		← {m.back_to_catalog()}

@@ -9,7 +9,7 @@ test('jacquard tool page loads from catalog', async ({ page }) => {
 });
 
 test('upload shows preview and enables export', async ({ page }) => {
-	await page.goto('/tools/jacquard-pattern');
+	await page.goto('tools/jacquard-pattern/');
 	const fixture = path.join(process.cwd(), 'e2e/fixtures/checker.png');
 	await page.locator('input[type="file"]').setInputFiles(fixture);
 	await expect(page.getByRole('button', { name: /^Crop$/i })).toHaveAttribute('aria-current', 'step');

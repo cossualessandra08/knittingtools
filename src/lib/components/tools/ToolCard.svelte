@@ -13,7 +13,7 @@
 
 <a
 	href={localizedHref(tool.href)}
-	data-sveltekit-reload
+	rel="external"
 	class="group block h-full rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
 >
 	<Card.Root
