@@ -39,11 +39,7 @@
 </section>
 
 <p class="mt-12">
-	<a
-		href={localizedHref('/')}
-		rel="external"
-		class="font-medium text-brand hover:underline"
-	>
+	<a href={localizedHref('/')} class="font-medium text-brand hover:underline">
 		← {m.back_to_catalog()}
 	</a>
 </p>

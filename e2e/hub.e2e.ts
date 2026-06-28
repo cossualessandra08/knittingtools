@@ -21,13 +21,12 @@ test('italian jacquard tool page loads', async ({ page }) => {
 	await expect(page.getByRole('link', { name: /^IT$/i })).toHaveAttribute('aria-current', 'page');
 });
 
-test('locale switch reloads translated jacquard page', async ({ page }) => {
+test('locale switch shows translated jacquard page', async ({ page }) => {
 	await page.goto('tools/jacquard-pattern/');
 	await Promise.all([
-		page.waitForNavigation({ waitUntil: 'load' }),
+		page.waitForURL(/\/it\/tools\/jacquard-pattern\/?$/),
 		page.getByRole('link', { name: 'IT', exact: true }).click()
 	]);
-	await expect(page).toHaveURL(/\/it\/tools\/jacquard-pattern\/?$/);
 	await expect(page.getByRole('heading', { level: 1 })).toContainText(
 		/Convertitore pattern jacquard/i
 	);
@@ -35,10 +34,7 @@ test('locale switch reloads translated jacquard page', async ({ page }) => {
 
 test('back link returns to catalog', async ({ page }) => {
 	await page.goto('tools/needle-chart/');
-	await Promise.all([
-		page.waitForNavigation({ waitUntil: 'load' }),
-		page.getByRole('link', { name: /All tools/i }).click()
-	]);
+	await page.getByRole('link', { name: /All tools/i }).click();
 	await expect(page).toHaveURL(/\/knittingtools\/?$/);
 	await expect(page.getByRole('heading', { level: 2 })).toContainText(/Tools/i);
 });

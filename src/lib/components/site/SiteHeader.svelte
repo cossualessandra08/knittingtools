@@ -6,12 +6,17 @@
 	import { getLocale, locales } from '$lib/paraglide/runtime';
 
 	const locale = $derived(getLocale());
+
+	function navigateLocale(event: MouseEvent & { currentTarget: EventTarget & HTMLAnchorElement }) {
+		event.preventDefault();
+		window.location.href = event.currentTarget.href;
+	}
 </script>
 
 <header
 	class="mx-auto flex w-full max-w-6xl items-center justify-between border-b border-border/60 px-6 py-4 md:px-10"
 >
-	<a href={resolve('/')} rel="external" class="text-lg font-semibold tracking-tight text-foreground">
+	<a href={resolve('/')} class="text-lg font-semibold tracking-tight text-foreground">
 		{m.site_name()}
 	</a>
 	<nav aria-label="Language" class="flex items-center gap-1 text-sm">
@@ -21,7 +26,7 @@
 			{/if}
 			<a
 				href={localizedHrefFromPageUrl(page.url, loc)}
-				rel="external"
+				onclick={navigateLocale}
 				class="rounded px-2 py-1 transition-colors {locale === loc
 					? 'bg-brand font-medium text-brand-foreground'
 					: 'text-muted-foreground hover:text-foreground'}"

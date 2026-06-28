@@ -7,7 +7,7 @@ export default defineConfig({
 		reuseExistingServer: true
 	},
 	use: {
-		baseURL: 'http://localhost:4174/knittingtools'
+		baseURL: 'http://localhost:4174/knittingtools/'
 	},
 	testMatch: '**/*.e2e.{ts,js}'
 });
