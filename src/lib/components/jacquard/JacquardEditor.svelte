@@ -185,12 +185,15 @@
 />
 
 <div class="space-y-6">
-	<nav aria-label="Jacquard editor steps" class="flex flex-wrap gap-2 border-b border-border pb-4">
+	<nav
+		aria-label="Jacquard editor steps"
+		class="grid grid-cols-5 gap-1 border-b border-border pb-4 sm:gap-2"
+	>
 		{#each STEPS as step (step)}
 			<button
 				type="button"
 				disabled={!canAccessStep(step)}
-				class="rounded-md border px-3 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 {activeStep ===
+				class="min-w-0 truncate rounded-md border px-1.5 py-2 text-center text-xs font-medium transition-colors sm:px-2 sm:text-sm disabled:cursor-not-allowed disabled:opacity-40 {activeStep ===
 				step
 					? 'border-brand bg-brand text-brand-foreground'
 					: 'border-border bg-muted/50 text-foreground hover:bg-muted'}"
@@ -202,9 +205,9 @@
 		{/each}
 	</nav>
 
-	<div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(240px,360px)]">
-		<div class="min-w-0 space-y-6">
-			{#if activeStep === 'image'}
+	<div class="grid gap-8 lg:grid-cols-[minmax(280px,1fr)_minmax(0,2fr)]">
+	<div class="order-2 min-w-0 space-y-6 lg:order-1">
+		{#if activeStep === 'image'}
 				<div class="space-y-4">
 					<ImageUploadZone onFile={handleFile} onBrowse={openFilePicker} />
 					{#if image}
@@ -318,7 +321,7 @@
 			</div>
 		</div>
 
-		<aside class="min-w-0 space-y-3 lg:sticky lg:top-4 lg:self-start">
+		<aside class="order-1 min-w-0 space-y-3 lg:order-2 lg:sticky lg:top-4 lg:self-start">
 			<div class="flex flex-wrap items-center justify-between gap-2">
 				<h2 class="text-sm font-semibold tracking-wide text-foreground uppercase">
 					{m.tool_jacquard_preview()}
