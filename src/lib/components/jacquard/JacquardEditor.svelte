@@ -7,7 +7,7 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
 	import { Slider } from '$lib/components/ui/slider/index.js';
-	import * as m from '$lib/paraglide/messages.js';
+	import { jacquard } from '$lib/copy.js';
 	import { validateImageFile, loadImageFromFile, cropAndResize } from '$lib/jacquard/canvas.js';
 	import {
 		MAX_NEEDLES,
@@ -59,7 +59,7 @@
 	});
 
 	const dimensionsSummary = $derived(
-		m.tool_jacquard_dimensions_summary({
+		jacquard.dimensionsSummary({
 			stitches: String(dimensions.stitches),
 			rows: String(dimensions.rows),
 			widthCm: dimensions.widthCm.toFixed(1),
@@ -74,15 +74,15 @@
 	function stepLabel(step: Step): string {
 		switch (step) {
 			case 'image':
-				return m.tool_jacquard_section_image();
+				return jacquard.sectionImage;
 			case 'crop':
-				return m.tool_jacquard_section_crop();
+				return jacquard.sectionCrop;
 			case 'dimensions':
-				return m.tool_jacquard_section_dimensions();
+				return jacquard.sectionDimensions;
 			case 'convert':
-				return m.tool_jacquard_section_convert();
+				return jacquard.sectionConvert;
 			case 'export':
-				return m.tool_jacquard_section_export();
+				return jacquard.sectionExport;
 		}
 	}
 
@@ -129,8 +129,8 @@
 		if (!validation.ok) {
 			errorMessage =
 				validation.code === 'unsupported_type'
-					? m.tool_jacquard_error_unsupported_type()
-					: m.tool_jacquard_error_file_too_large();
+					? jacquard.errorUnsupportedType
+					: jacquard.errorFileTooLarge;
 			return;
 		}
 		revokeImageUrl();
@@ -153,7 +153,7 @@
 	async function handleAyabExport() {
 		if (!bitmap) return;
 		if (stitches > MAX_NEEDLES) {
-			const ok = confirm(m.tool_jacquard_confirm_over_needles());
+			const ok = confirm(jacquard.confirmOverNeedles);
 			if (!ok) return;
 		}
 		await exportAyabPng(bitmap, dimensions.stitches, dimensions.rows);
@@ -162,12 +162,12 @@
 	async function handleDocsExport() {
 		if (!bitmap) return;
 		if (stitches > MAX_NEEDLES) {
-			const ok = confirm(m.tool_jacquard_confirm_over_needles());
+			const ok = confirm(jacquard.confirmOverNeedles);
 			if (!ok) return;
 		}
 		await exportDocumentation(bitmap, dimensions, gauge, fabricView, {
-			background: m.tool_jacquard_legend_background(),
-			foreground: m.tool_jacquard_legend_foreground()
+			background: jacquard.legendBackground,
+			foreground: jacquard.legendForeground
 		});
 	}
 
@@ -212,14 +212,14 @@
 					<ImageUploadZone onFile={handleFile} onBrowse={openFilePicker} />
 					{#if image}
 						<Button type="button" onclick={() => goToStep('crop')}>
-							{m.tool_jacquard_step_next()}
+							{jacquard.stepNext}
 						</Button>
 					{/if}
 					{#if errorMessage}
 						<p class="text-sm text-destructive">{errorMessage}</p>
 					{/if}
 					{#if !image}
-						<p class="text-sm text-muted-foreground">{m.tool_jacquard_hint_upload()}</p>
+						<p class="text-sm text-muted-foreground">{jacquard.hintUpload}</p>
 					{/if}
 				</div>
 			{:else if activeStep === 'crop'}
@@ -237,28 +237,28 @@
 			{:else if activeStep === 'dimensions'}
 				<div class="space-y-6">
 					<div class="space-y-3">
-						<h3 class="text-sm font-medium">{m.tool_jacquard_section_dimensions()}</h3>
+						<h3 class="text-sm font-medium">{jacquard.sectionDimensions}</h3>
 						<div class="space-y-2">
-							<Label for="jacquard-stitches">{m.tool_jacquard_stitches()}</Label>
+							<Label for="jacquard-stitches">{jacquard.stitches}</Label>
 							<Input id="jacquard-stitches" type="number" min="1" bind:value={stitches} />
 						</div>
 						{#if stitches > MAX_NEEDLES}
-							<p class="text-sm text-amber-700">{m.tool_jacquard_warn_over_needles()}</p>
+							<p class="text-sm text-amber-700">{jacquard.warnOverNeedles}</p>
 						{/if}
 						<p class="text-sm text-muted-foreground">
-							{m.tool_jacquard_rows_computed()}: <strong>{dimensions.rows}</strong>
+							{jacquard.rowsComputed}: <strong>{dimensions.rows}</strong>
 						</p>
 						{#if dimensions.rows > LONG_PATTERN_ROW_WARNING}
-							<p class="text-sm text-amber-700">{m.tool_jacquard_warn_long_pattern()}</p>
+							<p class="text-sm text-amber-700">{jacquard.warnLongPattern}</p>
 						{/if}
 						<p class="text-sm text-muted-foreground">{dimensionsSummary}</p>
 					</div>
 
 					<div class="space-y-3">
-						<h3 class="text-sm font-medium">{m.tool_jacquard_section_gauge()}</h3>
+						<h3 class="text-sm font-medium">{jacquard.sectionGauge}</h3>
 						<div class="grid gap-3 sm:grid-cols-2">
 							<div class="space-y-2">
-								<Label for="jacquard-st-per-cm">{m.tool_jacquard_stitches_per_cm()}</Label>
+								<Label for="jacquard-st-per-cm">{jacquard.stitchesPerCm}</Label>
 								<Input
 									id="jacquard-st-per-cm"
 									type="number"
@@ -268,7 +268,7 @@
 								/>
 							</div>
 							<div class="space-y-2">
-								<Label for="jacquard-rows-per-cm">{m.tool_jacquard_rows_per_cm()}</Label>
+								<Label for="jacquard-rows-per-cm">{jacquard.rowsPerCm}</Label>
 								<Input
 									id="jacquard-rows-per-cm"
 									type="number"
@@ -283,40 +283,40 @@
 			{:else if activeStep === 'convert'}
 				<div class="space-y-4">
 					<div class="space-y-2">
-						<Label>{m.tool_jacquard_threshold()}</Label>
+						<Label>{jacquard.threshold}</Label>
 						<Slider type="single" min={0} max={255} step={1} bind:value={threshold} />
 					</div>
 					<label class="flex items-center gap-2 text-sm">
 						<input type="checkbox" bind:checked={invert} class="rounded border-input" />
-						{m.tool_jacquard_invert()}
+						{jacquard.invert}
 					</label>
 				</div>
 			{:else if activeStep === 'export'}
 				<div class="space-y-4">
 					<div class="flex flex-wrap gap-2">
 						<Button type="button" disabled={!bitmap} onclick={handleAyabExport}>
-							{m.tool_jacquard_export_ayab()}
+							{jacquard.exportAyab}
 						</Button>
 						<Button type="button" variant="outline" disabled={!bitmap} onclick={handleDocsExport}>
-							{m.tool_jacquard_export_docs()}
+							{jacquard.exportDocs}
 						</Button>
 					</div>
 					{#if !bitmap}
-						<p class="text-sm text-muted-foreground">{m.tool_jacquard_hint_upload()}</p>
+						<p class="text-sm text-muted-foreground">{jacquard.hintUpload}</p>
 					{/if}
 				</div>
 			{/if}
 
 			<div class="flex justify-between border-t border-border pt-4">
 				<Button type="button" variant="outline" disabled={!canGoBack} onclick={goBack}>
-					{m.tool_jacquard_step_back()}
+					{jacquard.stepBack}
 				</Button>
 				<Button
 					type="button"
 					disabled={!canGoNext || !canAccessStep(STEPS[stepIndex + 1])}
 					onclick={goNext}
 				>
-					{m.tool_jacquard_step_next()}
+					{jacquard.stepNext}
 				</Button>
 			</div>
 		</div>
@@ -324,15 +324,15 @@
 		<aside class="order-1 min-w-0 space-y-3 md:order-2 md:sticky md:top-4 md:self-start">
 			<div class="flex flex-wrap items-center justify-between gap-2">
 				<h2 class="text-sm font-semibold tracking-wide text-foreground uppercase">
-					{m.tool_jacquard_preview()}
+					{jacquard.preview}
 				</h2>
 				<label class="flex items-center gap-2 text-sm">
 					<input type="checkbox" bind:checked={fabricView} class="rounded border-input" />
-					{m.tool_jacquard_fabric_view()}
+					{jacquard.fabricView}
 				</label>
 			</div>
 			{#if fabricView}
-				<p class="text-xs text-muted-foreground">{m.tool_jacquard_fabric_view_hint()}</p>
+				<p class="text-xs text-muted-foreground">{jacquard.fabricViewHint}</p>
 			{/if}
 			<PatternPreview
 				{bitmap}

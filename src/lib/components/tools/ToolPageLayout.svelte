@@ -1,8 +1,8 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import * as m from '$lib/paraglide/messages.js';
-	import { localizedHref } from '$lib/i18n/localized-href.js';
-	import { getMessage } from '$lib/i18n/get-message.js';
+	import type { Pathname } from '$app/types';
+	import { resolve } from '$app/paths';
+	import { site } from '$lib/copy.js';
 	import type { ToolDefinition } from '$lib/tools/types.js';
 
 	let {
@@ -15,8 +15,6 @@
 		children: Snippet;
 	} = $props();
 
-	const title = $derived(getMessage(tool.titleKey));
-	const portico = $derived(tool.porticoKeys.map((key) => getMessage(key)));
 	const Icon = $derived(tool.icon);
 </script>
 
@@ -24,9 +22,9 @@
 	<div class="flex size-14 items-center justify-center rounded-xl border text-brand">
 		<Icon class="size-7" aria-hidden="true" />
 	</div>
-	<h1 class="text-3xl font-semibold tracking-tight">{title}</h1>
+	<h1 class="text-3xl font-semibold tracking-tight">{tool.title}</h1>
 	<div class="max-w-2xl space-y-3 text-base leading-relaxed text-muted-foreground">
-		{#each portico as paragraph, index (index)}
+		{#each tool.portico as paragraph, index (index)}
 			<p>{paragraph}</p>
 		{/each}
 	</div>
@@ -39,7 +37,7 @@
 </section>
 
 <p class="mt-12">
-	<a href={localizedHref('/')} class="font-medium text-brand hover:underline">
-		← {m.back_to_catalog()}
+	<a href={resolve('/')} class="font-medium text-brand hover:underline">
+		← {site.backToCatalog}
 	</a>
 </p>

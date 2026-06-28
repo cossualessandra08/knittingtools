@@ -2,7 +2,7 @@
 
 - **Language**: TypeScript
 - **Package Manager**: npm
-- **Add-ons**: prettier, eslint, vitest, playwright, tailwindcss, sveltekit-adapter, mcp, paraglide
+- **Add-ons**: prettier, eslint, vitest, playwright, tailwindcss, sveltekit-adapter, mcp
 - **Design system**: [shadcn-svelte](https://www.shadcn-svelte.com/)
 
 ---

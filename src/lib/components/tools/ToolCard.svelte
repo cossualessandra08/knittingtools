@@ -1,18 +1,16 @@
 <script lang="ts">
-	import { localizedHref } from '$lib/i18n/localized-href.js';
+	import type { Pathname } from '$app/types';
+	import { resolve } from '$app/paths';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import type { ToolDefinition } from '$lib/tools/types.js';
-	import { getMessage } from '$lib/i18n/get-message.js';
 
 	let { tool }: { tool: ToolDefinition } = $props();
 
-	const title = $derived(getMessage(tool.titleKey));
-	const teaser = $derived(getMessage(tool.teaserKey));
 	const Icon = $derived(tool.icon);
 </script>
 
 <a
-	href={localizedHref(tool.href)}
+	href={resolve(`${tool.href}/` as Pathname)}
 	class="group block h-full rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
 >
 	<Card.Root
@@ -24,9 +22,9 @@
 			>
 				<Icon class="size-5" aria-hidden="true" />
 			</div>
-			<Card.Title class="text-base font-semibold">{title}</Card.Title>
+			<Card.Title class="text-base font-semibold">{tool.title}</Card.Title>
 			<Card.Description class="text-sm leading-relaxed text-muted-foreground">
-				{teaser}
+				{tool.teaser}
 			</Card.Description>
 		</Card.Header>
 	</Card.Root>

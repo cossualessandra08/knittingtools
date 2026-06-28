@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button/index.js';
-	import * as m from '$lib/paraglide/messages.js';
+	import { jacquard } from '$lib/copy.js';
 	import type { CropRect } from '$lib/jacquard/types.js';
 
 	let {
@@ -127,6 +127,6 @@
 		</div>
 	</div>
 	<Button type="button" variant="outline" onclick={onFitProportions}>
-		{m.tool_jacquard_fit_proportions()}
+		{jacquard.fitProportions}
 	</Button>
 </div>

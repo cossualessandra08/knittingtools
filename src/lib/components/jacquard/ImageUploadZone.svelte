@@ -1,5 +1,5 @@
 <script lang="ts">
-	import * as m from '$lib/paraglide/messages.js';
+	import { jacquard } from '$lib/copy.js';
 
 	let {
 		disabled = false,
@@ -40,5 +40,5 @@
 	onclick={onBrowse}
 	onkeydown={(e) => e.key === 'Enter' && onBrowse()}
 >
-	<p>{m.tool_jacquard_upload()}</p>
+	<p>{jacquard.upload}</p>
 </div>
