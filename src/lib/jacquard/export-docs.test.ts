@@ -9,7 +9,8 @@ describe('docsFilename', () => {
 
 describe('computeAnnotationLayout', () => {
 	it('allocates margin for row and column labels', () => {
-		const layout = computeAnnotationLayout(100, 200, false);
+		const gauge = { stitchesPerCm: 4.5, rowsPerCm: 6.4 };
+		const layout = computeAnnotationLayout(100, 200, false, gauge);
 		expect(layout.marginLeft).toBeGreaterThan(20);
 		expect(layout.marginTop).toBeGreaterThan(10);
 		expect(layout.patternWidth).toBe(100 * 8);

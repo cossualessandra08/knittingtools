@@ -4,47 +4,51 @@
 	import type { CropRect } from '$lib/jacquard/types.js';
 
 	let {
-		image,
+		imageUrl,
+		imageWidth,
+		imageHeight,
 		crop = $bindable(),
 		onFitProportions
 	}: {
-		image: HTMLImageElement;
+		imageUrl: string;
+		imageWidth: number;
+		imageHeight: number;
 		crop: CropRect;
 		onFitProportions: () => void;
 	} = $props();
 
 	const maxDisplayWidth = 480;
-	const scale = $derived(Math.min(1, maxDisplayWidth / image.naturalWidth));
-	const displayWidth = $derived(image.naturalWidth * scale);
-	const displayHeight = $derived(image.naturalHeight * scale);
 
-	const displayCrop = $derived({
-		x: crop.x * scale,
-		y: crop.y * scale,
-		width: crop.width * scale,
-		height: crop.height * scale
+	const cropPercent = $derived({
+		left: (crop.x / imageWidth) * 100,
+		top: (crop.y / imageHeight) * 100,
+		width: (crop.width / imageWidth) * 100,
+		height: (crop.height / imageHeight) * 100
 	});
 
+	let containerEl: HTMLDivElement | undefined = $state();
 	let dragMode: 'move' | 'resize' | null = $state(null);
 	let dragStart = { x: 0, y: 0 };
 	let cropStart: CropRect = crop;
 
-	function toImageCoords(x: number, y: number) {
-		return { x: x / scale, y: y / scale };
-	}
-
 	function clampCrop(rect: CropRect): CropRect {
-		const width = Math.max(1, Math.min(rect.width, image.naturalWidth));
-		const height = Math.max(1, Math.min(rect.height, image.naturalHeight));
-		const x = Math.max(0, Math.min(rect.x, image.naturalWidth - width));
-		const y = Math.max(0, Math.min(rect.y, image.naturalHeight - height));
+		const width = Math.max(1, Math.min(rect.width, imageWidth));
+		const height = Math.max(1, Math.min(rect.height, imageHeight));
+		const x = Math.max(0, Math.min(rect.x, imageWidth - width));
+		const y = Math.max(0, Math.min(rect.y, imageHeight - height));
 		return { x, y, width, height };
 	}
 
-	function onPointerDown(
-		event: PointerEvent,
-		mode: 'move' | 'resize'
-	) {
+	function pointerDeltaToImageCoords(dxPx: number, dyPx: number) {
+		if (!containerEl) return { dx: 0, dy: 0 };
+		const rect = containerEl.getBoundingClientRect();
+		return {
+			dx: (dxPx / rect.width) * imageWidth,
+			dy: (dyPx / rect.height) * imageHeight
+		};
+	}
+
+	function onPointerDown(event: PointerEvent, mode: 'move' | 'resize') {
 		event.preventDefault();
 		(event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
 		dragMode = mode;
@@ -54,8 +58,10 @@
 
 	function onPointerMove(event: PointerEvent) {
 		if (!dragMode) return;
-		const dx = (event.clientX - dragStart.x) / scale;
-		const dy = (event.clientY - dragStart.y) / scale;
+		const { dx, dy } = pointerDeltaToImageCoords(
+			event.clientX - dragStart.x,
+			event.clientY - dragStart.y
+		);
 
 		if (dragMode === 'move') {
 			crop = clampCrop({
@@ -81,38 +87,38 @@
 
 <div class="space-y-3">
 	<div
+		bind:this={containerEl}
 		role="application"
 		aria-label="Image crop area"
-		class="relative mx-auto overflow-hidden rounded-lg border border-border bg-muted/20"
-		style:width="{displayWidth}px"
-		style:height="{displayHeight}px"
+		class="relative mx-auto w-full max-w-[480px] overflow-hidden rounded-lg border border-border bg-muted/20"
 		onpointermove={onPointerMove}
 		onpointerup={onPointerUp}
 		onpointercancel={onPointerUp}
 	>
 		<img
-			src={image.src}
+			src={imageUrl}
 			alt=""
-			class="pointer-events-none block h-full w-full object-contain"
-			width={displayWidth}
-			height={displayHeight}
+			class="pointer-events-none block h-auto w-full select-none"
+			width={imageWidth}
+			height={imageHeight}
 		/>
 		<div
 			role="button"
 			tabindex="0"
 			aria-label="Crop selection"
 			class="absolute border-2 border-brand bg-brand/10"
-			style:left="{displayCrop.x}px"
-			style:top="{displayCrop.y}px"
-			style:width="{displayCrop.width}px"
-			style:height="{displayCrop.height}px"
+			style:left="{cropPercent.left}%"
+			style:top="{cropPercent.top}%"
+			style:width="{cropPercent.width}%"
+			style:height="{cropPercent.height}%"
 			onpointerdown={(e) => onPointerDown(e, 'move')}
 		>
 			<div
 				role="button"
 				tabindex="0"
 				aria-label="Resize crop"
-				class="absolute right-0 bottom-0 size-4 translate-x-1/2 translate-y-1/2 cursor-se-resize rounded-sm border border-brand bg-background"
+				class="absolute right-0 bottom-0 size-4 cursor-se-resize rounded-sm border border-brand bg-background"
+				style:transform="translate(50%, 50%)"
 				onpointerdown={(e) => {
 					e.stopPropagation();
 					onPointerDown(e, 'resize');

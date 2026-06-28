@@ -1,5 +1,6 @@
 import { jsPDF } from 'jspdf';
 import { downloadBlob, imageDataToPngBlob } from './canvas.js';
+import { patternCellSize } from './preview.js';
 import type { GaugeRatio, PatternDimensions } from './types.js';
 
 const CELL_PX = 8;
@@ -9,19 +10,24 @@ export function docsFilename(stitches: number, rows: number, ext: 'png' | 'pdf')
 	return `pattern-${stitches}x${rows}-docs.${ext}`;
 }
 
-export function computeAnnotationLayout(stitches: number, rows: number, fabricView: boolean) {
-	const cellHeight = fabricView ? CELL_PX * 0.7 : CELL_PX;
+export function computeAnnotationLayout(
+	stitches: number,
+	rows: number,
+	fabricView: boolean,
+	gauge: GaugeRatio
+) {
+	const { cellWidth, cellHeight } = patternCellSize(CELL_PX, fabricView, gauge);
 	const marginLeft = 36;
 	const marginTop = 28;
 	const legendHeight = 48;
 	return {
-		cellWidth: CELL_PX,
+		cellWidth,
 		cellHeight,
 		marginLeft,
 		marginTop,
-		patternWidth: stitches * CELL_PX,
+		patternWidth: stitches * cellWidth,
 		patternHeight: rows * cellHeight,
-		canvasWidth: marginLeft + stitches * CELL_PX + 16,
+		canvasWidth: marginLeft + stitches * cellWidth + 16,
 		canvasHeight: marginTop + rows * cellHeight + legendHeight + 16,
 		legendHeight
 	};
@@ -119,7 +125,7 @@ export function renderDocumentationCanvas(
 	fabricView: boolean,
 	labels: { background: string; foreground: string }
 ): HTMLCanvasElement {
-	const layout = computeAnnotationLayout(dims.stitches, dims.rows, fabricView);
+	const layout = computeAnnotationLayout(dims.stitches, dims.rows, fabricView, gauge);
 	const canvas = document.createElement('canvas');
 	canvas.width = layout.canvasWidth;
 	canvas.height = layout.canvasHeight;

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { CropRect } from '$lib/jacquard/types.js';
+	import { patternCellSize } from '$lib/jacquard/preview.js';
 
 	let {
 		bitmap,
@@ -19,17 +19,16 @@
 
 	let canvasEl: HTMLCanvasElement | undefined = $state();
 	const cellSize = 4;
-	const fabricScale = $derived(rowsPerCm / stitchesPerCm);
+	const gauge = $derived({ stitchesPerCm, rowsPerCm });
 
 	$effect(() => {
 		if (!canvasEl || !bitmap) return;
 		const ctx = canvasEl.getContext('2d');
 		if (!ctx) return;
 
-		const cellW = cellSize;
-		const cellH = fabricView ? cellSize * fabricScale : cellSize;
-		canvasEl.width = stitches * cellW;
-		canvasEl.height = rows * cellH;
+		const { cellWidth, cellHeight } = patternCellSize(cellSize, fabricView, gauge);
+		canvasEl.width = stitches * cellWidth;
+		canvasEl.height = rows * cellHeight;
 
 		ctx.fillStyle = '#ffffff';
 		ctx.fillRect(0, 0, canvasEl.width, canvasEl.height);
@@ -37,7 +36,7 @@
 		for (let row = 0; row < rows; row++) {
 			for (let col = 0; col < stitches; col++) {
 				ctx.fillStyle = bitmap[row * stitches + col] === 1 ? '#000000' : '#ffffff';
-				ctx.fillRect(col * cellW, row * cellH, cellW, cellH);
+				ctx.fillRect(col * cellWidth, row * cellHeight, cellWidth, cellHeight);
 			}
 		}
 	});
@@ -47,8 +46,6 @@
 	{#if bitmap}
 		<canvas bind:this={canvasEl} class="mx-auto block max-w-full"></canvas>
 	{:else}
-		<div class="flex min-h-48 items-center justify-center text-sm text-muted-foreground">
-			—
-		</div>
+		<div class="flex min-h-48 items-center justify-center text-sm text-muted-foreground">—</div>
 	{/if}
 </div>

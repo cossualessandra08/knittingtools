@@ -15,17 +15,15 @@ export function validateImageFile(file: File): FileValidationResult {
 	return { ok: true };
 }
 
-export async function loadImageFromFile(file: File): Promise<HTMLImageElement> {
-	const url = URL.createObjectURL(file);
-	try {
-		const image = new Image();
-		image.decoding = 'async';
-		image.src = url;
-		await image.decode();
-		return image;
-	} finally {
-		URL.revokeObjectURL(url);
-	}
+export async function loadImageFromFile(
+	file: File
+): Promise<{ image: HTMLImageElement; objectUrl: string }> {
+	const objectUrl = URL.createObjectURL(file);
+	const image = new Image();
+	image.decoding = 'async';
+	image.src = objectUrl;
+	await image.decode();
+	return { image, objectUrl };
 }
 
 export function cropAndResize(
