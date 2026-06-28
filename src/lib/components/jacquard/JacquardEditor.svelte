@@ -205,8 +205,8 @@
 		{/each}
 	</nav>
 
-	<div class="grid gap-8 lg:grid-cols-[minmax(280px,1fr)_minmax(0,2fr)]">
-	<div class="order-2 min-w-0 space-y-6 lg:order-1">
+	<div class="grid gap-8 md:grid-cols-[minmax(280px,1fr)_minmax(0,2fr)]">
+	<div class="order-2 min-w-0 space-y-6 md:order-1">
 		{#if activeStep === 'image'}
 				<div class="space-y-4">
 					<ImageUploadZone onFile={handleFile} onBrowse={openFilePicker} />
@@ -321,7 +321,7 @@
 			</div>
 		</div>
 
-		<aside class="order-1 min-w-0 space-y-3 lg:order-2 lg:sticky lg:top-4 lg:self-start">
+		<aside class="order-1 min-w-0 space-y-3 md:order-2 md:sticky md:top-4 md:self-start">
 			<div class="flex flex-wrap items-center justify-between gap-2">
 				<h2 class="text-sm font-semibold tracking-wide text-foreground uppercase">
 					{m.tool_jacquard_preview()}
