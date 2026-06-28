@@ -46,5 +46,6 @@ export function bitmapToRgba(bitmap: Uint8Array): Uint8ClampedArray {
 }
 
 export function bitmapToImageData(bitmap: Uint8Array, width: number, height: number): ImageData {
-	return new ImageData(bitmapToRgba(bitmap), width, height);
+	const rgba = bitmapToRgba(bitmap);
+	return new ImageData(new Uint8ClampedArray(rgba), width, height);
 }

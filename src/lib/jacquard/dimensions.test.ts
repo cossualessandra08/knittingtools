@@ -54,7 +54,14 @@ describe('fitCropToPatternAspect', () => {
 	it('adjusts crop rect to pattern aspect keeping center', () => {
 		const fitted = fitCropToPatternAspect(
 			{ x: 10, y: 10, width: 200, height: 100 },
-			{ stitches: 120, rows: 171, stitchesPerCm: 4.5, rowsPerCm: 6.4 },
+			{
+				stitches: 120,
+				rows: 171,
+				widthCm: 26.67,
+				heightCm: 26.67,
+				stitchesPerCm: 4.5,
+				rowsPerCm: 6.4
+			},
 			{ imageWidth: 400, imageHeight: 400 }
 		);
 		const target = patternCropAspectRatio({
