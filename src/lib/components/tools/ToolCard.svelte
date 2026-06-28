@@ -1,7 +1,5 @@
 <script lang="ts">
-	import type { Pathname } from '$app/types';
-	import { resolve } from '$app/paths';
-	import { localizeHref } from '$lib/paraglide/runtime';
+	import { localizedHref } from '$lib/i18n/localized-href.js';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import type { ToolDefinition } from '$lib/tools/types.js';
 	import { getMessage } from '$lib/i18n/get-message.js';
@@ -14,7 +12,8 @@
 </script>
 
 <a
-	href={resolve(localizeHref(tool.href as Pathname) as Pathname)}
+	href={localizedHref(tool.href)}
+	data-sveltekit-reload
 	class="group block h-full rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
 >
 	<Card.Root

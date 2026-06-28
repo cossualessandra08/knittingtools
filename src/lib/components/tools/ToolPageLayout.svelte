@@ -1,10 +1,8 @@
 <script lang="ts">
-	import type { Pathname } from '$app/types';
 	import type { Snippet } from 'svelte';
-	import { resolve } from '$app/paths';
 	import * as m from '$lib/paraglide/messages.js';
+	import { localizedHref } from '$lib/i18n/localized-href.js';
 	import { getMessage } from '$lib/i18n/get-message.js';
-	import { localizeHref } from '$lib/paraglide/runtime';
 	import type { ToolDefinition } from '$lib/tools/types.js';
 
 	let {
@@ -42,7 +40,8 @@
 
 <p class="mt-12">
 	<a
-		href={resolve(localizeHref('/' as Pathname) as Pathname)}
+		href={localizedHref('/')}
+		data-sveltekit-reload
 		class="font-medium text-brand hover:underline"
 	>
 		← {m.back_to_catalog()}
