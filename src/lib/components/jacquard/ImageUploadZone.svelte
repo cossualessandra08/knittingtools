@@ -3,14 +3,15 @@
 
 	let {
 		disabled = false,
-		onFile
+		onFile,
+		onBrowse
 	}: {
 		disabled?: boolean;
 		onFile: (file: File) => void;
+		onBrowse: () => void;
 	} = $props();
 
 	let dragging = $state(false);
-	let inputEl: HTMLInputElement | undefined = $state();
 
 	function handleFiles(files: FileList | null) {
 		const file = files?.[0];
@@ -36,16 +37,8 @@
 	}}
 	ondragleave={() => (dragging = false)}
 	ondrop={onDrop}
-	onclick={() => inputEl?.click()}
-	onkeydown={(e) => e.key === 'Enter' && inputEl?.click()}
+	onclick={onBrowse}
+	onkeydown={(e) => e.key === 'Enter' && onBrowse()}
 >
 	<p>{m.tool_jacquard_upload()}</p>
-	<input
-		bind:this={inputEl}
-		type="file"
-		accept="image/jpeg,image/png,image/webp"
-		class="sr-only"
-		{disabled}
-		onchange={(e) => handleFiles(e.currentTarget.files)}
-	/>
 </div>

@@ -32,7 +32,6 @@
 	"tool_jacquard_rows_per_cm": "Corse per cm",
 	"tool_jacquard_rows_computed": "Corse (calcolate)",
 	"tool_jacquard_dimensions_summary": "{stitches} maglie × {rows} corse — circa {widthCm} × {heightCm} cm sul tessuto",
-	"tool_jacquard_contrast": "Contrasto",
 	"tool_jacquard_threshold": "Bilanciamento bianco/nero",
 	"tool_jacquard_invert": "Inverti colori",
 	"tool_jacquard_fabric_view": "Come sul tessuto",
@@ -45,5 +44,9 @@
 	"tool_jacquard_confirm_over_needles": "La larghezza supera 200 maglie. Esportare comunque?",
 	"tool_jacquard_error_unsupported_type": "Formato non supportato. Usa JPG, PNG o WebP.",
 	"tool_jacquard_error_file_too_large": "Immagine troppo grande. Prova con un file più leggero.",
-	"tool_jacquard_hint_upload": "Carica un'immagine per iniziare."
+	"tool_jacquard_hint_upload": "Carica un'immagine per iniziare.",
+	"tool_jacquard_step_back": "Indietro",
+	"tool_jacquard_step_next": "Avanti",
+	"tool_jacquard_preview": "Anteprima",
+	"tool_jacquard_fabric_view_hint": "Mostra come apparirà il pattern sul tessuto, in base al rapporto aghi/corse."
 }

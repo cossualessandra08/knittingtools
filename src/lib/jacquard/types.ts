@@ -18,7 +18,6 @@ export type PatternDimensions = {
 };
 
 export type ConversionParams = {
-	contrast: number;
 	threshold: number;
 	invert: boolean;
 };
