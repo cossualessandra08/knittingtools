@@ -43,3 +43,42 @@ export const jacquard = {
 	preview: 'Preview',
 	fabricViewHint: 'Shows how the pattern will look on fabric, using your needle/row ratio.'
 } as const;
+
+export const intarsia = {
+	projectName: 'Project name',
+	newProject: 'New project',
+	exportProject: 'Export project',
+	importProject: 'Import project',
+	uploadImage: 'Upload image',
+	createGrid: 'Create grid',
+	widthStitches: 'Width (stitches)',
+	heightRows: 'Height (rows)',
+	colourCount: 'Number of colours',
+	confirmColours: 'Confirm colours',
+	mergeColours: 'Merge colours',
+	rowLabel: (n: number) => `Row ${n}`,
+	nextRow: 'Next row',
+	prevRow: 'Prev row',
+	prevStitch: 'Previous stitch',
+	nextStitch: 'Next stitch',
+	readingAuto: 'Auto (zigzag)',
+	readingManual: 'Manual',
+	directionLtr: 'Left to right',
+	directionRtl: 'Right to left',
+	showRsWs: 'Show RS/WS',
+	fabricView: 'As on fabric',
+	stitchesPerCm: 'Stitches per cm',
+	rowsPerCm: 'Rows per cm',
+	zoom: 'Zoom',
+	totalStitches: (n: number) => `${n} stitches`,
+	editPatternWarning:
+		'Editing the pattern may change instructions for the current row. Continue?',
+	errorUnsupportedType: 'Unsupported format. Use JPG or PNG.',
+	errorFileTooLarge: 'Image too large. Try a smaller file.',
+	errorPatternExceedsLimits: 'Pattern exceeds 200 stitches or 300 rows.',
+	errorTooManyColours: 'Maximum 20 colours. Merge colours in the review step.',
+	errorNoPattern: 'Load or create a pattern to start.',
+	errorInvalidProject: 'Could not read project file.',
+	confirmNewProject: 'Start a new project? This replaces your current project.',
+	hintStart: 'Load or create a pattern to get started.'
+} as const;
