@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { Pathname } from '$app/types';
 	import { resolve } from '$app/paths';
-	import * as Card from '$lib/components/ui/card/index.js';
 	import type { ToolDefinition } from '$lib/tools/types.js';
 
 	let { tool }: { tool: ToolDefinition } = $props();
@@ -11,21 +10,11 @@
 
 <a
 	href={resolve(`${tool.href}/` as Pathname)}
-	class="group block h-full rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+	class="block h-full border border-border p-6 transition-colors duration-150 hover:bg-hub-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
 >
-	<Card.Root
-		class="h-full border-border transition-shadow group-hover:border-brand/40 group-hover:shadow-sm"
-	>
-		<Card.Header class="gap-4">
-			<div
-				class="flex size-10 items-center justify-center rounded-lg border text-muted-foreground group-hover:text-brand"
-			>
-				<Icon class="size-5" aria-hidden="true" />
-			</div>
-			<Card.Title class="text-base font-semibold">{tool.title}</Card.Title>
-			<Card.Description class="text-sm leading-relaxed text-muted-foreground">
-				{tool.teaser}
-			</Card.Description>
-		</Card.Header>
-	</Card.Root>
+	<div class="flex flex-col gap-3">
+		<Icon size={20} weight="regular" class="text-foreground" aria-hidden="true" />
+		<h3 class="text-base font-medium text-foreground">{tool.title}</h3>
+		<p class="text-sm font-light leading-relaxed text-muted-foreground">{tool.teaser}</p>
+	</div>
 </a>
