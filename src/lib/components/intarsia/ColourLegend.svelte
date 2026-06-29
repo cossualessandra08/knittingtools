@@ -8,15 +8,20 @@
 	let {
 		palette = $bindable([]),
 		onRename,
-		onMerge
+		onMerge,
+		onHexChange,
+		onAddColour
 	}: {
 		palette?: ColourEntry[];
 		onRename?: (id: number, name: string) => void;
 		onMerge?: (fromId: number, intoId: number) => void;
+		onHexChange?: (id: number, hex: string) => void;
+		onAddColour?: (hex: string) => void;
 	} = $props();
 
 	let mergeFrom = $state<number | ''>('');
 	let mergeInto = $state<number | ''>('');
+	let newColourHex = $state('#ff0000');
 
 	function handleRename(id: number, value: string) {
 		onRename?.(id, value);
@@ -35,11 +40,15 @@
 	<ul class="flex flex-col gap-2">
 		{#each palette as entry (entry.id)}
 			<li class="flex items-center gap-2">
-				<span
-					class="size-5 shrink-0 rounded-sm border border-border"
-					style="background-color: {entry.hex};"
-					aria-hidden="true"
-				></span>
+				<label class="sr-only" for="colour-hex-{entry.id}">Colour for {entry.name}</label>
+				<input
+					id="colour-hex-{entry.id}"
+					type="color"
+					value={entry.hex}
+					class="size-5 shrink-0 cursor-pointer rounded-sm border border-border p-0"
+					oninput={(e) => onHexChange?.(entry.id, (e.currentTarget as HTMLInputElement).value)}
+					aria-label="Change colour for {entry.name}"
+				/>
 				<Label for="colour-name-{entry.id}" class="sr-only">Colour name for {entry.hex}</Label>
 				<Input
 					id="colour-name-{entry.id}"
@@ -51,6 +60,20 @@
 			</li>
 		{/each}
 	</ul>
+
+	{#if onAddColour}
+		<div class="flex items-center gap-2">
+			<input
+				type="color"
+				bind:value={newColourHex}
+				class="size-8 cursor-pointer rounded border border-border p-0"
+				aria-label="New colour"
+			/>
+			<Button type="button" variant="outline" size="sm" onclick={() => onAddColour(newColourHex)}>
+				{intarsia.addColour}
+			</Button>
+		</div>
+	{/if}
 
 	<!-- Merge UI -->
 	{#if palette.length >= 2}

@@ -5,8 +5,12 @@ export function defaultColourName(index: number): string {
 	return `Colour ${index + 1}`;
 }
 
+/** White background + black for drawing on blank grids. */
 export function createDefaultPalette(): ColourEntry[] {
-	return [{ id: 0, hex: '#FFFFFF', name: defaultColourName(0) }];
+	return [
+		{ id: 0, hex: '#FFFFFF', name: 'White' },
+		{ id: 1, hex: '#000000', name: 'Black' }
+	];
 }
 
 export function addColour(palette: ColourEntry[], hex: string): ColourEntry[] {
@@ -19,6 +23,10 @@ export function addColour(palette: ColourEntry[], hex: string): ColourEntry[] {
 
 export function renameColour(palette: ColourEntry[], id: number, name: string): ColourEntry[] {
 	return palette.map((c) => (c.id === id ? { ...c, name } : c));
+}
+
+export function updateColourHex(palette: ColourEntry[], id: number, hex: string): ColourEntry[] {
+	return palette.map((c) => (c.id === id ? { ...c, hex } : c));
 }
 
 export function mergeColours(

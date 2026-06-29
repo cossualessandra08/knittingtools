@@ -8,11 +8,11 @@ import {
 import { createEmptyMatrix, setCell } from './pattern-matrix.js';
 
 describe('colour-palette', () => {
-	it('creates default white palette entry', () => {
+	it('creates default white and black palette entries', () => {
 		const palette = createDefaultPalette();
-		expect(palette).toHaveLength(1);
+		expect(palette).toHaveLength(2);
 		expect(palette[0]!.hex).toBe('#FFFFFF');
-		expect(palette[0]!.name).toBe('Colour 1');
+		expect(palette[1]!.hex).toBe('#000000');
 	});
 
 	it('merges two colours and remaps matrix cells', () => {

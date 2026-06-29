@@ -57,15 +57,20 @@
 
 	function handleConfirm() {
 		if (!file) return;
-		onConfirm?.({ file, width, height, colourCount });
+		const w = Math.round(Number(width));
+		const h = Math.round(Number(height));
+		const colours = Array.isArray(colourCount) ? colourCount[0]! : Math.round(Number(colourCount));
+		onConfirm?.({ file, width: w, height: h, colourCount: colours });
 	}
 
 	const canConfirm = $derived(
 		file !== null &&
-			width >= 1 &&
-			width <= MAX_STITCHES &&
-			height >= 1 &&
-			height <= MAX_ROWS &&
+			Number.isFinite(Number(width)) &&
+			Math.round(Number(width)) >= 1 &&
+			Math.round(Number(width)) <= MAX_STITCHES &&
+			Number.isFinite(Number(height)) &&
+			Math.round(Number(height)) >= 1 &&
+			Math.round(Number(height)) <= MAX_ROWS &&
 			error === null
 	);
 </script>

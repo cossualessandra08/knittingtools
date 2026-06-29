@@ -37,8 +37,9 @@ describe('project-storage', () => {
 			expect(project.matrix.width).toBe(10);
 			expect(project.matrix.height).toBe(5);
 			expect(project.matrix.cells.length).toBe(50);
-			expect(project.palette).toHaveLength(1);
+			expect(project.palette).toHaveLength(2);
 			expect(project.palette[0]?.hex).toBe('#FFFFFF');
+			expect(project.palette[1]?.hex).toBe('#000000');
 			expect(project.position).toEqual({ row: 0, stitch: 0 });
 			expect(project.settings).toMatchObject({
 				projectName: 'Untitled',
@@ -56,7 +57,6 @@ describe('project-storage', () => {
 		it('round-trips project state', () => {
 			const project = defaultProject(4, 3);
 			setCell(project.matrix, 1, 2, 1);
-			project.palette.push({ id: 1, hex: '#000000', name: 'Black' });
 			project.position = { row: 2, stitch: 1 };
 			project.settings.projectName = 'My pattern';
 

@@ -165,4 +165,8 @@ export class UndoStack {
 	canUndo(): boolean {
 		return this.snapshots.length > 0;
 	}
+
+	clear(): void {
+		this.snapshots = [];
+	}
 }

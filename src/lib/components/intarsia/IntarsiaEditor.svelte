@@ -36,9 +36,10 @@
 		importProjectJson
 	} from '$lib/intarsia/project-storage.js';
 	import { uiRowNumber } from '$lib/intarsia/pattern-matrix.js';
-	import { renameColour, mergeColours } from '$lib/intarsia/colour-palette.js';
+	import { renameColour, mergeColours, addColour, updateColourHex } from '$lib/intarsia/colour-palette.js';
 	import { quantizeImageData } from '$lib/intarsia/image-quantize.js';
-	import { AUTOSAVE_KEY } from '$lib/intarsia/constants.js';
+	import { AUTOSAVE_KEY, MAX_ROWS, MAX_STITCHES } from '$lib/intarsia/constants.js';
+	import { normalizeDimension } from '$lib/intarsia/pattern-matrix.js';
 	import type { IntarsiaProject } from '$lib/intarsia/types.js';
 
 	type EditorTool = 'brush' | 'eraser' | 'fill' | 'select' | 'line';
@@ -216,11 +217,21 @@
 
 	// ─── Setup: blank grid ────────────────────────────────────────────────────
 	function createBlankGrid() {
+		const w = normalizeDimension(blankWidth, MAX_STITCHES);
+		const h = normalizeDimension(blankHeight, MAX_ROWS);
+		if (w === null || h === null) {
+			errorMessage = intarsia.errorPatternExceedsLimits;
+			return;
+		}
 		try {
-			project = defaultProject(blankWidth, blankHeight);
+			project = defaultProject(w, h);
+			project.position = { row: 0, stitch: 0 };
 			phase = 'work';
 			editing = true;
+			activeColourId = 1;
+			undoStack.clear();
 			errorMessage = null;
+			if (browser) saveToLocalStorage(project);
 		} catch (e) {
 			errorMessage = e instanceof Error ? e.message : 'Could not create grid.';
 		}
@@ -239,12 +250,27 @@
 		colourCount: number;
 	}) {
 		errorMessage = null;
+		const w = normalizeDimension(width, MAX_STITCHES);
+		const h = normalizeDimension(height, MAX_ROWS);
+		const colours = Math.round(Number(colourCount));
+		if (w === null || h === null) {
+			errorMessage = intarsia.errorPatternExceedsLimits;
+			return;
+		}
+		if (!Number.isFinite(colours) || colours < 1) {
+			errorMessage = intarsia.errorTooManyColours;
+			return;
+		}
 		try {
-			const imageData = await loadImageAsData(file, width, height);
-			const { matrix, palette } = quantizeImageData(imageData, colourCount);
-			const base = defaultProject(width, height);
+			const imageData = await loadImageAsData(file, w, h);
+			const { matrix, palette } = quantizeImageData(imageData, colours);
+			const base = defaultProject(w, h);
 			project = { ...base, matrix, palette };
+			project.position = { row: 0, stitch: 0 };
 			phase = 'work';
+			editing = false;
+			undoStack.clear();
+			if (browser) saveToLocalStorage(project);
 		} catch (e) {
 			errorMessage = e instanceof Error ? e.message : 'Could not process image.';
 		}
@@ -342,6 +368,23 @@
 		const result = mergeColours(project.matrix, project.palette, fromId, intoId);
 		project.matrix = result.matrix;
 		project.palette = result.palette;
+		if (activeColourId >= project.palette.length) {
+			activeColourId = project.palette[0]?.id ?? 0;
+		}
+		cellVersion++;
+	}
+
+	function handleAddColour(hex: string) {
+		try {
+			project.palette = addColour(project.palette, hex);
+			activeColourId = project.palette[project.palette.length - 1]!.id;
+		} catch (e) {
+			errorMessage = e instanceof Error ? e.message : intarsia.errorTooManyColours;
+		}
+	}
+
+	function handleColourHexChange(id: number, hex: string) {
+		project.palette = updateColourHex(project.palette, id, hex);
 		cellVersion++;
 	}
 </script>
@@ -516,6 +559,7 @@
 					palette={project.palette}
 					canUndo={undoStack.canUndo()}
 					onUndo={handleUndo}
+					onAddColour={handleAddColour}
 				/>
 			</div>
 		{/if}
@@ -533,6 +577,7 @@
 				fabricView={project.settings.fabricView}
 				stitchesPerCm={project.settings.stitchesPerCm}
 				rowsPerCm={project.settings.rowsPerCm}
+				{cellVersion}
 				onStitchTap={handleGridTap}
 			/>
 		</div>
@@ -555,6 +600,8 @@
 					bind:palette={project.palette}
 					onRename={handleRename}
 					onMerge={handleMerge}
+					onHexChange={handleColourHexChange}
+					onAddColour={handleAddColour}
 				/>
 			</div>
 		</aside>

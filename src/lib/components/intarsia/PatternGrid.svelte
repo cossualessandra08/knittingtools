@@ -10,6 +10,7 @@
 		fabricView,
 		stitchesPerCm,
 		rowsPerCm,
+		cellVersion = 0,
 		onStitchTap
 	}: {
 		matrix: PatternMatrix;
@@ -19,6 +20,7 @@
 		fabricView: boolean;
 		stitchesPerCm: number;
 		rowsPerCm: number;
+		cellVersion?: number;
 		onStitchTap?: (row: number, stitch: number) => void;
 	} = $props();
 
@@ -52,6 +54,8 @@
 	// ── Main draw effect ────────────────────────────────────────────────────────
 	$effect(() => {
 		if (!canvasEl || !matrix || matrix.width === 0 || matrix.height === 0) return;
+		// cellVersion bumps when matrix cells are mutated in place (brush, fill, undo).
+		void cellVersion;
 		const ctx = canvasEl.getContext('2d');
 		if (!ctx) return;
 

@@ -29,6 +29,11 @@ describe('pattern-matrix', () => {
 		expect(validateMatrixDimensions(100, 100).ok).toBe(true);
 	});
 
+	it('rejects non-finite dimensions', () => {
+		expect(validateMatrixDimensions(Number.NaN, 10).ok).toBe(false);
+		expect(validateMatrixDimensions(10, Number.NaN).ok).toBe(false);
+	});
+
 	it('sets and gets cells by row/stitch', () => {
 		const m = createEmptyMatrix(4, 2);
 		setCell(m, 1, 2, 3);

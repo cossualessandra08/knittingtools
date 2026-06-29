@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button/index.js';
+	import { intarsia } from '$lib/copy.js';
 	import type { ColourEntry } from '$lib/intarsia/types.js';
 
 	type EditorTool = 'brush' | 'eraser' | 'fill' | 'select' | 'line';
@@ -13,7 +14,8 @@
 		symmetry = $bindable(false),
 		visible = true,
 		onUndo,
-		onRedo
+		onRedo,
+		onAddColour
 	}: {
 		activeTool?: EditorTool;
 		activeColourId?: number;
@@ -24,7 +26,10 @@
 		visible?: boolean;
 		onUndo?: () => void;
 		onRedo?: () => void;
+		onAddColour?: (hex: string) => void;
 	} = $props();
+
+	let newColourHex = $state('#ff0000');
 
 	const tools: { id: EditorTool; label: string; icon: string }[] = [
 		{ id: 'brush', label: 'Brush', icon: '✏️' },
@@ -79,6 +84,19 @@
 			</div>
 			{#if activeColour}
 				<span class="text-xs text-muted-foreground">{activeColour.name}</span>
+			{/if}
+			{#if onAddColour}
+				<label class="flex items-center gap-1 text-xs text-muted-foreground">
+					<input type="color" bind:value={newColourHex} class="size-6 cursor-pointer rounded border border-border p-0" />
+					<Button
+						type="button"
+						variant="outline"
+						size="xs"
+						onclick={() => onAddColour?.(newColourHex)}
+					>
+						{intarsia.addColour}
+					</Button>
+				</label>
 			{/if}
 		</div>
 

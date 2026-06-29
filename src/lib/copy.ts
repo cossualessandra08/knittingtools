@@ -51,6 +51,7 @@ export const intarsia = {
 	colourCount: 'Number of colours',
 	confirmColours: 'Confirm colours',
 	mergeColours: 'Merge colours',
+	addColour: 'Add colour',
 	rowLabel: (n: number) => `Row ${n}`,
 	nextRow: 'Next row',
 	prevRow: 'Prev row',
