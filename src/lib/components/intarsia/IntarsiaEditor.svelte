@@ -15,6 +15,10 @@
 	import EditorToolbar from './EditorToolbar.svelte';
 	import ImageImportPanel from './ImageImportPanel.svelte';
 
+	import GridNineIcon from 'phosphor-svelte/lib/GridNineIcon';
+	import ImageSquareIcon from 'phosphor-svelte/lib/ImageSquareIcon';
+	import FolderOpenIcon from 'phosphor-svelte/lib/FolderOpenIcon';
+
 	import { UndoStack, applyBrush, floodFill, drawLine } from '$lib/intarsia/grid-editor.js';
 
 	import {
@@ -663,7 +667,7 @@
 					class="flex h-16 w-full items-center gap-4 rounded-lg border border-border bg-card px-4 text-left transition-colors hover:border-primary/60 hover:bg-accent"
 					onclick={() => (setupMode = 'blank')}
 				>
-					<span class="text-2xl" aria-hidden="true">⬛</span>
+					<GridNineIcon size={24} weight="regular" class="shrink-0 text-foreground" aria-hidden="true" />
 					<div>
 						<div class="font-medium">{intarsia.createGrid}</div>
 						<div class="text-xs text-muted-foreground">Start with an empty grid</div>
@@ -674,7 +678,7 @@
 					class="flex h-16 w-full items-center gap-4 rounded-lg border border-border bg-card px-4 text-left transition-colors hover:border-primary/60 hover:bg-accent"
 					onclick={() => (setupMode = 'import')}
 				>
-					<span class="text-2xl" aria-hidden="true">🖼</span>
+					<ImageSquareIcon size={24} weight="regular" class="shrink-0 text-foreground" aria-hidden="true" />
 					<div>
 						<div class="font-medium">{intarsia.uploadImage}</div>
 						<div class="text-xs text-muted-foreground">Import a photo and convert to a pattern</div>
@@ -685,7 +689,7 @@
 					class="flex h-16 w-full items-center gap-4 rounded-lg border border-border bg-card px-4 text-left transition-colors hover:border-primary/60 hover:bg-accent"
 					onclick={handleImportFile}
 				>
-					<span class="text-2xl" aria-hidden="true">📂</span>
+					<FolderOpenIcon size={24} weight="regular" class="shrink-0 text-foreground" aria-hidden="true" />
 					<div>
 						<div class="font-medium">{intarsia.importProject}</div>
 						<div class="text-xs text-muted-foreground">Load a saved .intarsia.json file</div>
