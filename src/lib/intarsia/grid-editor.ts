@@ -1,10 +1,9 @@
 import { getCell, setCell } from './pattern-matrix.js';
-import type { PatternMatrix } from './types.js';
+import type { ColourEntry, PatternMatrix } from './types.js';
 
-export interface RegionClip {
-	width: number;
-	height: number;
+export interface EditorSnapshot {
 	cells: Uint8Array;
+	palette: ColourEntry[];
 }
 
 const MAX_UNDO_ENTRIES = 50;
@@ -83,90 +82,52 @@ export function drawLine(
 	}
 }
 
-export function copyRegion(
-	matrix: PatternMatrix,
-	row: number,
-	stitch: number,
-	width: number,
-	height: number
-): RegionClip {
-	const clipWidth = Math.min(width, matrix.width - stitch);
-	const clipHeight = Math.min(height, matrix.height - row);
-	const cells = new Uint8Array(Math.max(0, clipWidth) * Math.max(0, clipHeight));
-
-	if (clipWidth <= 0 || clipHeight <= 0) {
-		return { width: 0, height: 0, cells };
-	}
-
-	for (let r = 0; r < clipHeight; r++) {
-		for (let s = 0; s < clipWidth; s++) {
-			cells[r * clipWidth + s] = getCell(matrix, row + r, stitch + s);
-		}
-	}
-
-	return { width: clipWidth, height: clipHeight, cells };
+function clonePalette(palette: ColourEntry[]): ColourEntry[] {
+	return palette.map((entry) => ({ ...entry }));
 }
 
-export function pasteRegion(
-	matrix: PatternMatrix,
-	row: number,
-	stitch: number,
-	clip: RegionClip
-): void {
-	for (let r = 0; r < clip.height; r++) {
-		for (let s = 0; s < clip.width; s++) {
-			const targetRow = row + r;
-			const targetStitch = stitch + s;
-			if (!inBounds(matrix, targetRow, targetStitch)) continue;
-			setCell(matrix, targetRow, targetStitch, clip.cells[r * clip.width + s]!);
-		}
-	}
-}
-
-export function applyWithSymmetry(
-	matrix: PatternMatrix,
-	row: number,
-	stitch: number,
-	axis: 'vertical' | 'horizontal',
-	fn: (matrix: PatternMatrix, row: number, stitch: number) => void
-): void {
-	fn(matrix, row, stitch);
-
-	if (axis === 'vertical') {
-		const mirroredStitch = matrix.width - 1 - stitch;
-		if (mirroredStitch !== stitch) {
-			fn(matrix, row, mirroredStitch);
-		}
-	} else {
-		const mirroredRow = matrix.height - 1 - row;
-		if (mirroredRow !== row) {
-			fn(matrix, mirroredRow, stitch);
-		}
-	}
+function snapshotEditor(matrix: PatternMatrix, palette: ColourEntry[]): EditorSnapshot {
+	return { cells: matrix.cells.slice(), palette: clonePalette(palette) };
 }
 
 export class UndoStack {
-	private snapshots: Uint8Array[] = [];
+	private undoSnapshots: EditorSnapshot[] = [];
+	private redoSnapshots: EditorSnapshot[] = [];
 
-	push(matrix: PatternMatrix): void {
-		this.snapshots.push(matrix.cells.slice());
-		if (this.snapshots.length > MAX_UNDO_ENTRIES) {
-			this.snapshots.shift();
+	push(matrix: PatternMatrix, palette: ColourEntry[]): void {
+		this.undoSnapshots.push(snapshotEditor(matrix, palette));
+		this.redoSnapshots = [];
+		if (this.undoSnapshots.length > MAX_UNDO_ENTRIES) {
+			this.undoSnapshots.shift();
 		}
 	}
 
-	undo(matrix: PatternMatrix): boolean {
-		const snapshot = this.snapshots.pop();
-		if (!snapshot) return false;
-		matrix.cells.set(snapshot);
-		return true;
+	undo(matrix: PatternMatrix, palette: ColourEntry[]): ColourEntry[] | null {
+		const snapshot = this.undoSnapshots.pop();
+		if (!snapshot) return null;
+		this.redoSnapshots.push(snapshotEditor(matrix, palette));
+		matrix.cells.set(snapshot.cells);
+		return clonePalette(snapshot.palette);
+	}
+
+	redo(matrix: PatternMatrix, palette: ColourEntry[]): ColourEntry[] | null {
+		const snapshot = this.redoSnapshots.pop();
+		if (!snapshot) return null;
+		this.undoSnapshots.push(snapshotEditor(matrix, palette));
+		matrix.cells.set(snapshot.cells);
+		return clonePalette(snapshot.palette);
 	}
 
 	canUndo(): boolean {
-		return this.snapshots.length > 0;
+		return this.undoSnapshots.length > 0;
+	}
+
+	canRedo(): boolean {
+		return this.redoSnapshots.length > 0;
 	}
 
 	clear(): void {
-		this.snapshots = [];
+		this.undoSnapshots = [];
+		this.redoSnapshots = [];
 	}
 }

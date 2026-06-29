@@ -3,7 +3,7 @@
 	import { intarsia } from '$lib/copy.js';
 	import type { ColourEntry } from '$lib/intarsia/types.js';
 
-	type EditorTool = 'brush' | 'eraser' | 'fill' | 'select' | 'line';
+	type EditorTool = 'brush' | 'eraser' | 'fill' | 'line';
 
 	let {
 		activeTool = $bindable('brush' as EditorTool),
@@ -11,7 +11,6 @@
 		palette,
 		canUndo = false,
 		canRedo = false,
-		symmetry = $bindable(false),
 		visible = true,
 		onUndo,
 		onRedo,
@@ -22,7 +21,6 @@
 		palette: ColourEntry[];
 		canUndo?: boolean;
 		canRedo?: boolean;
-		symmetry?: boolean;
 		visible?: boolean;
 		onUndo?: () => void;
 		onRedo?: () => void;
@@ -35,7 +33,6 @@
 		{ id: 'brush', label: 'Brush', icon: '✏️' },
 		{ id: 'eraser', label: 'Eraser', icon: '⬜' },
 		{ id: 'fill', label: 'Fill', icon: '🪣' },
-		{ id: 'select', label: 'Select', icon: '⬚' },
 		{ id: 'line', label: 'Line', icon: '╱' }
 	];
 
@@ -125,19 +122,5 @@
 				↪
 			</Button>
 		</div>
-
-		<div class="h-5 w-px bg-border"></div>
-
-		<!-- Symmetry toggle -->
-		<Button
-			variant={symmetry ? 'secondary' : 'ghost'}
-			size="sm"
-			onclick={() => (symmetry = !symmetry)}
-			aria-pressed={symmetry}
-			aria-label="Symmetry"
-			title="Symmetry"
-		>
-			⟺ Symmetry
-		</Button>
 	</div>
 {/if}

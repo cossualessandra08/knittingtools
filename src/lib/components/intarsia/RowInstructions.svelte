@@ -54,7 +54,7 @@
 
 	<!-- Run list -->
 	<ol class="flex flex-col gap-1">
-		{#each analysis.runs as run (run.colourId + '-' + run.length)}
+		{#each analysis.runs as run, i (i)}
 			<li class="flex items-center gap-2">
 				<span
 					class="inline-block size-3.5 shrink-0 rounded-sm border border-border"

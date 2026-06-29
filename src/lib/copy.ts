@@ -52,6 +52,10 @@ export const intarsia = {
 	confirmColours: 'Confirm colours',
 	mergeColours: 'Merge colours',
 	addColour: 'Add colour',
+	removeColour: 'Remove colour',
+	confirmRemoveColourInUse: (name: string) =>
+		`"${name}" is used on the grid. Remove it anyway? Stitches in this colour will become white.`,
+	errorCannotRemoveColour: 'Cannot remove this colour.',
 	rowLabel: (n: number) => `Row ${n}`,
 	nextRow: 'Next row',
 	prevRow: 'Prev row',

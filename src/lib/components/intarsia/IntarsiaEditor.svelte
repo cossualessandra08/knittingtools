@@ -15,7 +15,8 @@
 	import EditorToolbar from './EditorToolbar.svelte';
 	import ImageImportPanel from './ImageImportPanel.svelte';
 
-	import { UndoStack, applyBrush, floodFill } from '$lib/intarsia/grid-editor.js';
+	import { UndoStack, applyBrush, floodFill, drawLine } from '$lib/intarsia/grid-editor.js';
+
 	import {
 		analyzeRow,
 		activeSegmentIndex as calcActiveSegIdx
@@ -26,7 +27,9 @@
 		nextStitch as doNextStitch,
 		prevRow as doPrevRow,
 		nextRow as doNextRow,
-		setStitchPosition
+		setStitchPosition,
+		jumpToRow as doJumpToRow,
+		sanitizePosition
 	} from '$lib/intarsia/work-assistant.js';
 	import {
 		defaultProject,
@@ -35,14 +38,13 @@
 		downloadProjectFile,
 		importProjectJson
 	} from '$lib/intarsia/project-storage.js';
-	import { uiRowNumber } from '$lib/intarsia/pattern-matrix.js';
-	import { renameColour, mergeColours, addColour, updateColourHex } from '$lib/intarsia/colour-palette.js';
+	import { uiRowNumber, normalizeDimension, getCell } from '$lib/intarsia/pattern-matrix.js';
+	import { renameColour, mergeColours, addColour, updateColourHex, removeColour, colourInUse } from '$lib/intarsia/colour-palette.js';
 	import { quantizeImageData } from '$lib/intarsia/image-quantize.js';
 	import { AUTOSAVE_KEY, MAX_ROWS, MAX_STITCHES } from '$lib/intarsia/constants.js';
-	import { normalizeDimension } from '$lib/intarsia/pattern-matrix.js';
-	import type { IntarsiaProject } from '$lib/intarsia/types.js';
+	import type { IntarsiaProject, WorkPosition } from '$lib/intarsia/types.js';
 
-	type EditorTool = 'brush' | 'eraser' | 'fill' | 'select' | 'line';
+	type EditorTool = 'brush' | 'eraser' | 'fill' | 'line';
 
 	// ─── Core state ──────────────────────────────────────────────────────────
 	let project = $state<IntarsiaProject>(defaultProject(20, 30));
@@ -51,40 +53,96 @@
 	let editorTool = $state<EditorTool>('brush');
 	let activeColourId = $state(0);
 	const undoStack = new UndoStack();
+	/** Bumps when undo/redo stack changes so toolbar buttons stay in sync. */
+	let undoRevision = $state(0);
+	const canUndo = $derived.by(() => {
+		void undoRevision;
+		return undoStack.canUndo();
+	});
+	const canRedo = $derived.by(() => {
+		void undoRevision;
+		return undoStack.canRedo();
+	});
+	function touchUndoStack() {
+		undoRevision++;
+	}
 	let errorMessage = $state<string | null>(null);
 	let showEditConfirm = $state(false);
 	let showNewProjectConfirm = $state(false);
+	let pendingRemoveColourId = $state<number | null>(null);
 	/** Incremented on every cell mutation so $effects track editing changes. */
 	let cellVersion = $state(0);
+	/** Bump to scroll grid to current row after button/keyboard row navigation. */
+	let scrollToRowTrigger = $state(0);
+	/** Bumps on every work-position change so UI and canvas stay in sync. */
+	let positionVersion = $state(0);
+
+	function requestScrollToRow() {
+		scrollToRowTrigger++;
+	}
+
+	function setWorkPosition(next: WorkPosition, scroll = false) {
+		const position = sanitizePosition(
+			next,
+			project.matrix.width,
+			project.matrix.height
+		);
+		project = { ...project, position };
+		positionVersion++;
+		if (scroll) requestScrollToRow();
+	}
 
 	// Setup sub-phase
 	let setupMode = $state<'choose' | 'blank' | 'import'>('choose');
 	let blankWidth = $state(40);
 	let blankHeight = $state(50);
 
+	/** First endpoint when drawing a line. */
+	let lineStart = $state<{ row: number; stitch: number } | null>(null);
+
 	// ─── Derived ──────────────────────────────────────────────────────────────
+	const workRow = $derived.by(() => {
+		void positionVersion;
+		return project.position.row;
+	});
+	const workStitch = $derived.by(() => {
+		void positionVersion;
+		return project.position.stitch;
+	});
 	const direction = $derived(
 		readingDirectionForRow(
-			project.position.row,
+			workRow,
 			project.settings.readingMode,
 			project.settings.manualDirection
 		)
 	);
-	const rowSide = $derived(rowSideForRow(project.position.row));
-	const currentUiRow = $derived(uiRowNumber(project.position.row));
-	const rowAnalysis = $derived(analyzeRow(project.matrix, project.position.row, direction));
+	const rowSide = $derived(rowSideForRow(workRow));
+	const currentUiRow = $derived(uiRowNumber(workRow));
+	const rowAnalysis = $derived(analyzeRow(project.matrix, workRow, direction));
 	const activeSegIdx = $derived(
-		calcActiveSegIdx(rowAnalysis.runs, project.position.stitch, direction, project.matrix.width)
+		calcActiveSegIdx(rowAnalysis.runs, workStitch, direction, project.matrix.width)
 	);
 	const completedSegIdx = $derived(activeSegIdx - 1);
+	const pendingRemoveColour = $derived(
+		pendingRemoveColourId === null
+			? null
+			: (project.palette.find((entry) => entry.id === pendingRemoveColourId) ?? null)
+	);
 
 	// ─── Mount: restore autosave ──────────────────────────────────────────────
 	onMount(() => {
 		try {
 			const saved = loadFromLocalStorage();
 			if (saved) {
-				project = saved;
+				const position = sanitizePosition(
+					saved.position,
+					saved.matrix.width,
+					saved.matrix.height
+				);
+				project = { ...saved, position };
+				positionVersion++;
 				phase = 'work';
+				requestScrollToRow();
 			}
 		} catch {
 			// ignore corrupted storage — start fresh
@@ -96,12 +154,14 @@
 		// Track changes that warrant a save
 		void project.position.row;
 		void project.position.stitch;
+		void positionVersion;
 		void project.settings.projectName;
 		void project.settings.zoom;
 		void project.settings.readingMode;
 		void project.settings.showRsWs;
 		void project.settings.fabricView;
 		void cellVersion;
+		void editing;
 
 		if (!browser || phase !== 'work') return;
 
@@ -111,74 +171,153 @@
 			} catch {
 				// localStorage full — ignore
 			}
-		}, 500);
+		}, editing ? 1500 : 500);
 
 		return () => clearTimeout(timer);
 	});
 
 	// ─── Navigation ───────────────────────────────────────────────────────────
 	function handlePrevStitch() {
-		project.position = doPrevStitch(project.position, project.matrix.width, project.settings);
+		setWorkPosition(doPrevStitch(project.position, project.matrix.width, project.settings));
 	}
 
 	function handleNextStitch() {
-		project.position = doNextStitch(project.position, project.matrix.width, project.settings);
+		setWorkPosition(doNextStitch(project.position, project.matrix.width, project.settings));
 	}
 
 	function handlePrevRow() {
-		project.position = doPrevRow(
-			project.position,
-			project.matrix.width,
-			project.matrix.height,
-			project.settings
+		setWorkPosition(
+			doPrevRow(
+				project.position,
+				project.matrix.width,
+				project.matrix.height,
+				project.settings
+			),
+			true
 		);
 	}
 
 	function handleNextRow() {
-		project.position = doNextRow(
-			project.position,
-			project.matrix.width,
-			project.matrix.height,
-			project.settings
+		setWorkPosition(
+			doNextRow(
+				project.position,
+				project.matrix.width,
+				project.matrix.height,
+				project.settings
+			),
+			true
 		);
 	}
 
-	// ─── Grid tap ─────────────────────────────────────────────────────────────
+	function handleJumpToRow(uiRow: number) {
+		setWorkPosition(
+			doJumpToRow(
+				uiRow,
+				project.matrix.width,
+				project.matrix.height,
+				project.settings
+			),
+			true
+		);
+	}
+
+	// ─── Grid interaction ───────────────────────────────────────────────────
+	function paintColourId(): number {
+		return editorTool === 'eraser' ? 0 : activeColourId;
+	}
+
 	function handleGridTap(row: number, stitch: number) {
 		if (editing && phase === 'work') {
-			if (editorTool === 'brush' || editorTool === 'eraser') {
-				undoStack.push(project.matrix);
-				applyBrush(project.matrix, row, stitch, editorTool === 'eraser' ? 0 : activeColourId);
-				cellVersion++;
-			} else if (editorTool === 'fill') {
-				undoStack.push(project.matrix);
+			if (editorTool === 'fill') {
+				undoStack.push(project.matrix, project.palette);
+				touchUndoStack();
 				floodFill(project.matrix, row, stitch, activeColourId);
 				cellVersion++;
-			} else {
-				// select / line: tap sets navigation position
-				project.position = setStitchPosition(
+			} else if (editorTool === 'line') {
+				if (!lineStart) {
+					lineStart = { row, stitch };
+				} else {
+					undoStack.push(project.matrix, project.palette);
+					touchUndoStack();
+					drawLine(
+						project.matrix,
+						lineStart.row,
+						lineStart.stitch,
+						row,
+						stitch,
+						activeColourId
+					);
+					lineStart = null;
+					cellVersion++;
+				}
+			} else if (editorTool === 'brush' || editorTool === 'eraser') {
+				undoStack.push(project.matrix, project.palette);
+				touchUndoStack();
+				applyBrush(project.matrix, row, stitch, paintColourId());
+				cellVersion++;
+			}
+		} else {
+			setWorkPosition(
+				setStitchPosition(
 					project.position,
 					row,
 					stitch,
 					project.matrix.width,
 					project.matrix.height
-				);
-			}
-		} else {
-			project.position = setStitchPosition(
-				project.position,
-				row,
-				stitch,
-				project.matrix.width,
-				project.matrix.height
+				)
 			);
 		}
 	}
 
-	// ─── Undo ─────────────────────────────────────────────────────────────────
+	function clearLineStart() {
+		lineStart = null;
+	}
+
+	function handleGridPaint(row: number, stitch: number, { strokeStart }: { strokeStart: boolean }) {
+		if (!editing || phase !== 'work') return;
+		if (editorTool !== 'brush' && editorTool !== 'eraser') return;
+
+		if (strokeStart) {
+			undoStack.push(project.matrix, project.palette);
+			touchUndoStack();
+		}
+
+		const colourId = paintColourId();
+		if (getCell(project.matrix, row, stitch) === colourId) return;
+
+		applyBrush(project.matrix, row, stitch, colourId);
+		cellVersion++;
+	}
+
+	$effect(() => {
+		void editorTool;
+		if (editorTool !== 'line') clearLineStart();
+	});
+
+	// ─── Undo / Redo ──────────────────────────────────────────────────────────
+	function syncActiveColour() {
+		if (!project.palette.some((entry) => entry.id === activeColourId)) {
+			activeColourId = project.palette[0]?.id ?? 0;
+		}
+	}
+
 	function handleUndo() {
-		if (undoStack.undo(project.matrix)) {
+		const palette = undoStack.undo(project.matrix, project.palette);
+		if (palette) {
+			project = { ...project, palette };
+			syncActiveColour();
 			cellVersion++;
+			touchUndoStack();
+		}
+	}
+
+	function handleRedo() {
+		const palette = undoStack.redo(project.matrix, project.palette);
+		if (palette) {
+			project = { ...project, palette };
+			syncActiveColour();
+			cellVersion++;
+			touchUndoStack();
 		}
 	}
 
@@ -194,6 +333,22 @@
 		)
 			return;
 
+		const mod = event.metaKey || event.ctrlKey;
+		if (editing && mod && event.key === 'z' && !event.shiftKey) {
+			event.preventDefault();
+			handleUndo();
+			return;
+		}
+		if (editing && mod && (event.key === 'Z' || (event.key === 'z' && event.shiftKey))) {
+			event.preventDefault();
+			handleRedo();
+			return;
+		}
+		if (editing && event.key === 'Escape') {
+			clearLineStart();
+			return;
+		}
+
 		switch (event.key) {
 			case 'ArrowLeft':
 				event.preventDefault();
@@ -204,10 +359,14 @@
 				handleNextStitch();
 				break;
 			case 'ArrowUp':
+				// Visual up on screen = higher row number
+				event.preventDefault();
+				handleNextRow();
+				break;
+			case 'ArrowDown':
 				event.preventDefault();
 				handlePrevRow();
 				break;
-			case 'ArrowDown':
 			case ' ':
 				event.preventDefault();
 				handleNextRow();
@@ -225,11 +384,12 @@
 		}
 		try {
 			project = defaultProject(w, h);
-			project.position = { row: 0, stitch: 0 };
+			setWorkPosition({ row: 0, stitch: 0 }, true);
 			phase = 'work';
 			editing = true;
 			activeColourId = 1;
 			undoStack.clear();
+			touchUndoStack();
 			errorMessage = null;
 			if (browser) saveToLocalStorage(project);
 		} catch (e) {
@@ -266,10 +426,11 @@
 			const { matrix, palette } = quantizeImageData(imageData, colours);
 			const base = defaultProject(w, h);
 			project = { ...base, matrix, palette };
-			project.position = { row: 0, stitch: 0 };
+			setWorkPosition({ row: 0, stitch: 0 }, true);
 			phase = 'work';
 			editing = false;
 			undoStack.clear();
+			touchUndoStack();
 			if (browser) saveToLocalStorage(project);
 		} catch (e) {
 			errorMessage = e instanceof Error ? e.message : 'Could not process image.';
@@ -364,13 +525,15 @@
 		project.palette = renameColour(project.palette, id, name);
 	}
 
+	function adjustActiveColourAfterRemoval(removedId: number, remapToId: number) {
+		if (activeColourId === removedId) activeColourId = remapToId;
+		else if (activeColourId > removedId) activeColourId--;
+	}
+
 	function handleMerge(fromId: number, intoId: number) {
 		const result = mergeColours(project.matrix, project.palette, fromId, intoId);
-		project.matrix = result.matrix;
-		project.palette = result.palette;
-		if (activeColourId >= project.palette.length) {
-			activeColourId = project.palette[0]?.id ?? 0;
-		}
+		project = { ...project, matrix: result.matrix, palette: result.palette };
+		adjustActiveColourAfterRemoval(fromId, intoId);
 		cellVersion++;
 	}
 
@@ -380,6 +543,39 @@
 			activeColourId = project.palette[project.palette.length - 1]!.id;
 		} catch (e) {
 			errorMessage = e instanceof Error ? e.message : intarsia.errorTooManyColours;
+		}
+	}
+
+	function handleRemoveColour(id: number) {
+		if (colourInUse(project.matrix, id)) {
+			pendingRemoveColourId = id;
+			return;
+		}
+		applyRemoveColour(id);
+	}
+
+	function cancelRemoveColour() {
+		pendingRemoveColourId = null;
+	}
+
+	function confirmRemoveColour() {
+		if (pendingRemoveColourId === null) return;
+		applyRemoveColour(pendingRemoveColourId);
+		pendingRemoveColourId = null;
+	}
+
+	function applyRemoveColour(id: number) {
+		try {
+			undoStack.push(project.matrix, project.palette);
+			touchUndoStack();
+			const result = removeColour(project.matrix, project.palette, id, 0);
+			project = { ...project, matrix: result.matrix, palette: result.palette };
+			adjustActiveColourAfterRemoval(id, 0);
+			syncActiveColour();
+			cellVersion++;
+			errorMessage = null;
+		} catch (e) {
+			errorMessage = e instanceof Error ? e.message : intarsia.errorCannotRemoveColour;
 		}
 	}
 
@@ -401,6 +597,9 @@
 				<Button
 					onclick={() => {
 						editing = true;
+						if (activeColourId === 0 && project.palette.length > 1) {
+							activeColourId = project.palette[1]!.id;
+						}
 						showEditConfirm = false;
 					}}>Continue</Button
 				>
@@ -417,6 +616,18 @@
 			<div class="flex justify-end gap-2">
 				<Button variant="outline" onclick={() => (showNewProjectConfirm = false)}>Cancel</Button>
 				<Button variant="destructive" onclick={resetToSetup}>Start new</Button>
+			</div>
+		</div>
+	</div>
+{/if}
+
+{#if pendingRemoveColour}
+	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+		<div class="w-full max-w-sm rounded-xl bg-background p-6 shadow-lg">
+			<p class="mb-4 text-sm">{intarsia.confirmRemoveColourInUse(pendingRemoveColour.name)}</p>
+			<div class="flex justify-end gap-2">
+				<Button variant="outline" onclick={cancelRemoveColour}>Cancel</Button>
+				<Button variant="destructive" onclick={confirmRemoveColour}>{intarsia.removeColour}</Button>
 			</div>
 		</div>
 	</div>
@@ -526,11 +737,13 @@
 					bind:projectName={project.settings.projectName}
 					bind:zoom={project.settings.zoom}
 					uiRowNumber={currentUiRow}
+					maxRows={project.matrix.height}
 					{direction}
 					rowSide={project.settings.showRsWs ? rowSide : null}
 					bind:showRsWs={project.settings.showRsWs}
 					bind:fabricView={project.settings.fabricView}
 					bind:readingMode={project.settings.readingMode}
+					onJumpToRow={handleJumpToRow}
 				/>
 			</div>
 			<div class="flex shrink-0 items-center gap-1 border-l border-border px-2">
@@ -557,8 +770,10 @@
 					bind:activeTool={editorTool}
 					bind:activeColourId
 					palette={project.palette}
-					canUndo={undoStack.canUndo()}
+					{canUndo}
+					{canRedo}
 					onUndo={handleUndo}
+					onRedo={handleRedo}
 					onAddColour={handleAddColour}
 				/>
 			</div>
@@ -572,13 +787,20 @@
 			<PatternGrid
 				matrix={project.matrix}
 				palette={project.palette}
-				position={project.position}
+				positionRow={workRow}
+				positionStitch={workStitch}
+				{positionVersion}
 				zoom={project.settings.zoom}
 				fabricView={project.settings.fabricView}
 				stitchesPerCm={project.settings.stitchesPerCm}
 				rowsPerCm={project.settings.rowsPerCm}
 				{cellVersion}
+				{scrollToRowTrigger}
+				{editing}
+				{editorTool}
+				{lineStart}
 				onStitchTap={handleGridTap}
+				onStitchPaint={handleGridPaint}
 			/>
 		</div>
 
@@ -602,6 +824,7 @@
 					onMerge={handleMerge}
 					onHexChange={handleColourHexChange}
 					onAddColour={handleAddColour}
+					onRemove={handleRemoveColour}
 				/>
 			</div>
 		</aside>

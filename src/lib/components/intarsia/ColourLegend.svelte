@@ -10,14 +10,18 @@
 		onRename,
 		onMerge,
 		onHexChange,
-		onAddColour
+		onAddColour,
+		onRemove
 	}: {
 		palette?: ColourEntry[];
 		onRename?: (id: number, name: string) => void;
 		onMerge?: (fromId: number, intoId: number) => void;
 		onHexChange?: (id: number, hex: string) => void;
 		onAddColour?: (hex: string) => void;
+		onRemove?: (id: number) => void;
 	} = $props();
+
+	const canRemove = $derived(palette.length > 1);
 
 	let mergeFrom = $state<number | ''>('');
 	let mergeInto = $state<number | ''>('');
@@ -54,9 +58,23 @@
 					id="colour-name-{entry.id}"
 					value={entry.name}
 					oninput={(e) => handleRename(entry.id, (e.currentTarget as HTMLInputElement).value)}
-					class="h-7 text-xs"
+					class="h-7 min-w-0 flex-1 text-xs"
 					aria-label="Name for {entry.hex}"
 				/>
+				{#if onRemove}
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon-sm"
+						class="size-7 shrink-0 text-muted-foreground hover:text-destructive"
+						disabled={!canRemove || entry.id === 0}
+						onclick={() => onRemove(entry.id)}
+						aria-label="{intarsia.removeColour}: {entry.name}"
+						title={intarsia.removeColour}
+					>
+						×
+					</Button>
+				{/if}
 			</li>
 		{/each}
 	</ul>

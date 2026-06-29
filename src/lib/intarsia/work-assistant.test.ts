@@ -21,7 +21,11 @@ describe('work-assistant', () => {
 
 	it('prevStitch moves rtl on row 1', () => {
 		const pos = { row: 1, stitch: 3 };
-		expect(prevStitch(pos, 5, settings).stitch).toBe(2);
+		expect(prevStitch(pos, 5, settings).stitch).toBe(4);
+	});
+
+	it('prevStitch moves ltr on even rows', () => {
+		expect(prevStitch({ row: 0, stitch: 2 }, 5, settings).stitch).toBe(1);
 	});
 
 	it('nextRow advances and resets stitch to row start', () => {
@@ -31,7 +35,13 @@ describe('work-assistant', () => {
 	});
 
 	it('jumpToRow resets stitch for reading direction', () => {
-		expect(jumpToRow(2, 5, settings).stitch).toBe(0);
+		expect(jumpToRow(1, 5, 3, settings).stitch).toBe(0);
+		expect(jumpToRow(2, 5, 3, settings).stitch).toBe(4);
+	});
+
+	it('nextRow coerces string row values without string concatenation', () => {
+		const pos = nextRow({ row: '5' as unknown as number, stitch: 0 }, 10, 20, settings);
+		expect(pos.row).toBe(6);
 	});
 
 	it('setStitchPosition clamps to grid', () => {

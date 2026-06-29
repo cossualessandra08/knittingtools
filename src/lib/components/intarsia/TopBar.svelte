@@ -9,25 +9,46 @@
 		projectName = $bindable(''),
 		zoom = $bindable(100 as ZoomLevel),
 		uiRowNumber,
+		maxRows = 300,
 		direction,
 		rowSide = null,
 		showRsWs = $bindable(true),
 		fabricView = $bindable(false),
 		readingMode = $bindable('zigzag' as 'zigzag' | 'manual'),
-		disabled = false
+		disabled = false,
+		onJumpToRow
 	}: {
 		projectName?: string;
 		zoom?: ZoomLevel;
 		uiRowNumber?: number;
+		maxRows?: number;
 		direction?: 'ltr' | 'rtl';
 		rowSide?: 'RS' | 'WS' | null;
 		showRsWs?: boolean;
 		fabricView?: boolean;
 		readingMode?: 'zigzag' | 'manual';
 		disabled?: boolean;
+		onJumpToRow?: (uiRow: number) => void;
 	} = $props();
 
+	let jumpDraft = $state('');
+
 	const directionArrow = $derived(direction === 'ltr' ? '→' : '←');
+
+	$effect(() => {
+		if (uiRowNumber !== undefined) {
+			jumpDraft = String(uiRowNumber);
+		}
+	});
+
+	function commitJump() {
+		const n = Math.round(Number(jumpDraft));
+		if (Number.isFinite(n) && n >= 1 && n <= maxRows) {
+			onJumpToRow?.(n);
+		} else if (uiRowNumber !== undefined) {
+			jumpDraft = String(uiRowNumber);
+		}
+	}
 </script>
 
 <header class="flex flex-wrap items-center gap-2 border-b border-border bg-background px-3 py-2">
@@ -62,9 +83,26 @@
 
 	<!-- Row / direction display -->
 	{#if uiRowNumber !== undefined}
-		<span class="text-sm font-medium tabular-nums">
-			{intarsia.rowLabel(uiRowNumber)}
-		</span>
+		<div class="flex items-center gap-1.5">
+			<span class="text-sm font-medium tabular-nums">{intarsia.rowLabel(uiRowNumber)}</span>
+			<label for="intarsia-row-jump" class="sr-only">Jump to row</label>
+			<Input
+				id="intarsia-row-jump"
+				type="number"
+				min={1}
+				max={maxRows}
+				bind:value={jumpDraft}
+				class="h-8 w-16 tabular-nums"
+				{disabled}
+				onchange={commitJump}
+				onkeydown={(e) => {
+					if (e.key === 'Enter') {
+						e.preventDefault();
+						commitJump();
+					}
+				}}
+			/>
+		</div>
 	{/if}
 	{#if direction !== undefined}
 		<span
