@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount, onDestroy } from 'svelte';
+	import { onDestroy, tick } from 'svelte';
 	import { dataPattern } from '$lib/copy.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
@@ -7,125 +7,91 @@
 	import { Slider } from '$lib/components/ui/slider/index.js';
 	import { searchPlace } from '$lib/data-pattern/adapters/geocoding-api.js';
 	import { bboxWithinLimit } from '$lib/data-pattern/dimensions.js';
+	import {
+		attachDrawOverlay,
+		createTerrainMap,
+		TERRAIN_MAP_VIEW_LEVELS,
+		type DrawOverlayController,
+		type TerrainMapController,
+		type TerrainMapViewLevel
+	} from '$lib/data-pattern/terrain-map.js';
 	import type { TerrainBbox, TerrainMode } from '$lib/data-pattern/types.js';
 
 	let {
 		bbox = $bindable<TerrainBbox>({ south: 44.95, north: 45.05, west: 8.95, east: 9.05 }),
 		mode = $bindable<TerrainMode>('continuous'),
-		posterizeLevels = $bindable(5)
+		posterizeLevels = $bindable(5),
+		searchQuery = $bindable('')
 	}: {
 		bbox: TerrainBbox;
 		mode: TerrainMode;
 		posterizeLevels: number;
+		searchQuery: string;
 	} = $props();
 
-	let mapContainer: HTMLDivElement | undefined = $state();
-	let searchQuery = $state('');
+	let drawOverlay: HTMLDivElement | undefined = $state();
 	let searchError = $state<string | null>(null);
 	let searching = $state(false);
 	let drawMode = $state(false);
+	let mapReady = $state(false);
+	let mapView = $state<TerrainMapViewLevel>(100);
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	let map: any;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	let rectangle: any;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	let L: any;
-	let drawStart: [number, number] | null = null;
-	let previewRect: unknown = null;
+	const mapViewLevels = TERRAIN_MAP_VIEW_LEVELS;
+
+	let mapCtrl: TerrainMapController | null = null;
+	let drawCtrl: DrawOverlayController | null = null;
 
 	const bboxValid = $derived(bboxWithinLimit(bbox));
 
-	onMount(async () => {
-		if (!mapContainer) return;
-		L = (await import('leaflet')).default;
-		await import('leaflet/dist/leaflet.css');
-
-		map = L.map(mapContainer).setView([45.0, 9.0], 10);
-		L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-			attribution: '© OpenStreetMap contributors',
-			maxZoom: 18
-		}).addTo(map);
-
-		renderRectangle();
-
-		map.on('mousedown', onMapMouseDown);
-		map.on('mousemove', onMapMouseMove);
-		map.on('mouseup', onMapMouseUp);
-	});
-
-	onDestroy(() => {
-		map?.remove();
-	});
-
-	function renderRectangle() {
-		if (!L || !map) return;
-		if (rectangle) {
-			rectangle.setBounds([
-				[bbox.south, bbox.west],
-				[bbox.north, bbox.east]
-			]);
-		} else {
-			rectangle = L.rectangle(
-				[
-					[bbox.south, bbox.west],
-					[bbox.north, bbox.east]
-				],
-				{ color: '#3b82f6', weight: 2, fillOpacity: 0.15 }
-			).addTo(map);
-		}
+	function applyBbox(next: TerrainBbox, fit = false) {
+		bbox = next;
+		mapCtrl?.setBbox(next, fit ? { fit: true, viewPercent: mapView } : undefined);
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	function onMapMouseDown(e: any) {
-		if (!drawMode) return;
-		drawStart = [e.latlng.lat, e.latlng.lng];
-		map.dragging.disable();
+	function setMapView(level: TerrainMapViewLevel) {
+		mapView = level;
+		mapCtrl?.setBbox(bbox, { fit: true, viewPercent: level });
+		requestAnimationFrame(() => mapCtrl?.invalidateSize());
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	function onMapMouseMove(e: any) {
-		if (!drawMode || !drawStart) return;
-		const s = Math.min(drawStart[0], e.latlng.lat);
-		const n = Math.max(drawStart[0], e.latlng.lat);
-		const w = Math.min(drawStart[1], e.latlng.lng);
-		const en = Math.max(drawStart[1], e.latlng.lng);
-		if (previewRect) {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			(previewRect as any).setBounds([
-				[s, w],
-				[n, en]
-			]);
-		} else {
-			previewRect = L.rectangle(
-				[
-					[s, w],
-					[n, en]
-				],
-				{ color: '#f97316', weight: 1.5, fillOpacity: 0.1, dashArray: '4' }
-			).addTo(map);
-		}
+	function initMap(node: HTMLDivElement) {
+		let destroyed = false;
+		void createTerrainMap(node, bbox).then(async (ctrl) => {
+			if (destroyed) {
+				ctrl.destroy();
+				return;
+			}
+			mapCtrl = ctrl;
+			mapReady = true;
+			await tick();
+			mapCtrl.invalidateSize();
+		});
+
+		return {
+			destroy() {
+				destroyed = true;
+				stopDrawOverlay();
+				mapCtrl?.destroy();
+				mapCtrl = null;
+				mapReady = false;
+			}
+		};
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	function onMapMouseUp(e: any) {
-		if (!drawMode || !drawStart) return;
-		const s = Math.min(drawStart[0], e.latlng.lat);
-		const n = Math.max(drawStart[0], e.latlng.lat);
-		const w = Math.min(drawStart[1], e.latlng.lng);
-		const en = Math.max(drawStart[1], e.latlng.lng);
+	function stopDrawOverlay() {
+		drawCtrl?.destroy();
+		drawCtrl = null;
+	}
 
-		if (previewRect) {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			(previewRect as any).remove();
-			previewRect = null;
-		}
-
-		bbox = { south: s, north: n, west: w, east: en };
-		renderRectangle();
-		drawStart = null;
-		drawMode = false;
-		map.dragging.enable();
+	function startDrawOverlay() {
+		if (!drawOverlay || !mapCtrl) return;
+		stopDrawOverlay();
+		drawCtrl = attachDrawOverlay(drawOverlay, mapCtrl.map, (nextBbox) => {
+			stopDrawOverlay();
+			drawMode = false;
+			applyBbox(nextBbox, false);
+			requestAnimationFrame(() => mapCtrl?.invalidateSize());
+		});
 	}
 
 	async function handleSearch() {
@@ -139,14 +105,16 @@
 				return;
 			}
 			const span = 0.05;
-			bbox = {
+			const next: TerrainBbox = {
 				south: result.lat - span,
 				north: result.lat + span,
 				west: result.lon - span,
 				east: result.lon + span
 			};
-			map.setView([result.lat, result.lon], 12);
-			renderRectangle();
+			mapCtrl?.flyTo(result.lat, result.lon, 12);
+			applyBbox(next, true);
+			await tick();
+			mapCtrl?.invalidateSize();
 		} catch {
 			searchError = dataPattern.errorGeocoding;
 		} finally {
@@ -156,19 +124,17 @@
 
 	function toggleDrawMode() {
 		drawMode = !drawMode;
-		if (!drawMode) {
-			map.dragging.enable();
-			drawStart = null;
-		}
+		if (!drawMode) stopDrawOverlay();
 	}
 
 	$effect(() => {
-		if (L && map && rectangle) {
-			rectangle.setBounds([
-				[bbox.south, bbox.west],
-				[bbox.north, bbox.east]
-			]);
+		if (drawMode && mapReady && drawOverlay && mapCtrl) {
+			startDrawOverlay();
 		}
+	});
+
+	onDestroy(() => {
+		stopDrawOverlay();
 	});
 </script>
 
@@ -189,21 +155,48 @@
 		<p class="text-sm text-destructive">{searchError}</p>
 	{/if}
 
-	<div class="relative">
-		<div
-			bind:this={mapContainer}
-			class="h-64 w-full rounded-lg border border-border {drawMode ? 'cursor-crosshair' : ''}"
-		></div>
-		<div class="absolute right-2 top-2 z-[1000] flex gap-1">
-			<Button
-				type="button"
-				size="sm"
-				variant={drawMode ? 'default' : 'outline'}
-				class="text-xs shadow"
-				onclick={toggleDrawMode}
+	<div class="relative isolate h-64 w-full overflow-hidden rounded-lg border border-border">
+		<div class="absolute inset-0 z-0" use:initMap></div>
+		{#if !mapReady}
+			<div
+				class="absolute inset-0 z-10 flex items-center justify-center bg-muted/30 text-sm text-muted-foreground"
 			>
-				{drawMode ? 'Cancel draw' : 'Draw selection'}
-			</Button>
+				Loading map…
+			</div>
+		{/if}
+		{#if drawMode}
+			<div
+				bind:this={drawOverlay}
+				class="absolute inset-0 z-20 cursor-crosshair touch-none"
+				role="presentation"
+				aria-hidden="true"
+			></div>
+		{/if}
+		<div class="pointer-events-none absolute inset-0 z-30">
+			<div class="pointer-events-auto absolute left-2 top-2 flex gap-1 rounded bg-background/90 p-0.5 shadow">
+				{#each mapViewLevels as level (level)}
+					<button
+						type="button"
+						class="rounded px-2 py-1 text-xs font-medium transition-colors {mapView === level
+							? 'bg-brand text-brand-foreground'
+							: 'text-muted-foreground hover:bg-muted'}"
+						onclick={() => setMapView(level)}
+					>
+						{level}%
+					</button>
+				{/each}
+			</div>
+			<div class="pointer-events-auto absolute right-2 top-2">
+				<Button
+					type="button"
+					size="sm"
+					variant={drawMode ? 'default' : 'outline'}
+					class="text-xs shadow"
+					onclick={toggleDrawMode}
+				>
+					{drawMode ? 'Cancel draw' : 'Draw selection'}
+				</Button>
+			</div>
 		</div>
 	</div>
 
@@ -242,3 +235,11 @@
 		No personal data is transmitted.
 	</p>
 </div>
+
+<style>
+	:global(.leaflet-container) {
+		height: 100%;
+		width: 100%;
+		font-family: inherit;
+	}
+</style>

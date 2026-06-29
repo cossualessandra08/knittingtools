@@ -20,6 +20,7 @@
 	import { exportKnitPurlPdf, exportSymbolicPng } from '$lib/data-pattern/export-knit-purl.js';
 	import { exportAyabPng } from '$lib/jacquard/export-ayab.js';
 	import { exportDocumentation } from '$lib/jacquard/export-docs.js';
+	import { ElevationFetchError } from '$lib/data-pattern/adapters/elevation-api.js';
 	import {
 		DEFAULT_STITCHES,
 		DEFAULT_STITCHES_PER_CM,
@@ -76,6 +77,7 @@
 	let terrainBbox = $state<TerrainBbox>({ south: 44.95, north: 45.05, west: 8.95, east: 9.05 });
 	let terrainMode = $state<TerrainMode>('continuous');
 	let terrainPosterizeLevels = $state(5);
+	let terrainSearchQuery = $state('');
 
 	// ── Generation state ────────────────────────────────────────────
 	let generating = $state(false);
@@ -90,6 +92,7 @@
 	let refineThreshold = $state(0.5);
 	let refineInvert = $state(false);
 	let rowsCapped = $state(false);
+	let workspaceZoom = $state(100);
 
 	// ── Derived ─────────────────────────────────────────────────────
 	const sharedConfig = $derived<SharedConfig>({ stitches, stitchesPerCm, rowsPerCm });
@@ -212,9 +215,14 @@
 			editor = new BitmapEditor(bmp, stitches, matrix.height);
 			currentBitmap = new Uint8Array(editor.bitmap);
 
+			workspaceZoom = selectedSource === 'terrain' ? 25 : 100;
 			phase = 'workspace';
 		} catch (e) {
-			generateError = e instanceof Error ? e.message : dataPattern.generationFailed;
+			if (e instanceof ElevationFetchError) {
+				generateError = dataPattern.errorElevation;
+			} else {
+				generateError = e instanceof Error ? e.message : dataPattern.generationFailed;
+			}
 			wizardStep = 'configure';
 		} finally {
 			generating = false;
@@ -236,6 +244,17 @@
 	function handleReset() {
 		if (!confirm(dataPattern.confirmReset)) return;
 		applyRefine(refineContrast, refineThreshold, refineInvert);
+	}
+
+	function handleBackToConfigure() {
+		if (hasEdits && !confirm(dataPattern.confirmRefineDiscard)) return;
+		phase = 'wizard';
+		wizardStep = 'configure';
+		editor = null;
+		currentBitmap = null;
+		generatedBitmap = null;
+		sourceMatrix = null;
+		generateError = null;
 	}
 
 	function handleChangeSource() {
@@ -377,6 +396,7 @@
 						bind:bbox={terrainBbox}
 						bind:mode={terrainMode}
 						bind:posterizeLevels={terrainPosterizeLevels}
+						bind:searchQuery={terrainSearchQuery}
 					/>
 				{/if}
 
@@ -441,9 +461,12 @@
 			threshold={refineThreshold}
 			invert={refineInvert}
 			bind:activeTool={currentActiveTool}
+			bind:zoom={workspaceZoom}
+			sourceId={selectedSource!}
 			{hasEdits}
 			onReset={handleReset}
 			onRefineApply={applyRefine}
+			onBackToConfigure={handleBackToConfigure}
 			onChangeSource={handleChangeSource}
 			onCellInteract={handleWorkspaceCellInteract}
 			onDownloadPdfChart={handleDownloadPdfChart}

@@ -1,9 +1,13 @@
 <script lang="ts">
-	import { onDestroy } from 'svelte';
+	import { onDestroy, tick } from 'svelte';
 	import { dataPattern } from '$lib/copy.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
 	import { Slider } from '$lib/components/ui/slider/index.js';
+	import {
+		drawAnalyserWaveform,
+		drawAudioBufferWaveform
+	} from '$lib/data-pattern/waveform-draw.js';
 
 	let {
 		sensitivity = $bindable(1),
@@ -28,19 +32,21 @@
 	let analyserNode: AnalyserNode | null = null;
 	let animFrameId: number | null = null;
 	let audioContext: AudioContext | null = null;
+	let mediaStream: MediaStream | null = null;
 
 	async function startRecording() {
 		error = null;
+		audioBuffer = null;
 		try {
-			const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+			mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
 			audioContext = new AudioContext();
-			const source = audioContext.createMediaStreamSource(stream);
+			const source = audioContext.createMediaStreamSource(mediaStream);
 			analyserNode = audioContext.createAnalyser();
 			analyserNode.fftSize = 256;
 			source.connect(analyserNode);
 
 			chunks = [];
-			mediaRecorder = new MediaRecorder(stream);
+			mediaRecorder = new MediaRecorder(mediaStream);
 			mediaRecorder.ondataavailable = (e) => {
 				if (e.data.size > 0) chunks.push(e.data);
 			};
@@ -53,8 +59,9 @@
 				} catch {
 					error = dataPattern.errorAudioDecode;
 				}
-				stream.getTracks().forEach((t) => t.stop());
-				stopWaveformDraw();
+				mediaStream?.getTracks().forEach((t) => t.stop());
+				mediaStream = null;
+				stopLiveWaveform();
 			};
 			mediaRecorder.start();
 			recording = true;
@@ -62,7 +69,8 @@
 			timerInterval = setInterval(() => {
 				durationSec = (Date.now() - startTime) / 1000;
 			}, 100);
-			drawWaveform();
+			await tick();
+			startLiveWaveform();
 		} catch (e) {
 			if (e instanceof DOMException && e.name === 'NotAllowedError') {
 				error = dataPattern.errorMicDenied;
@@ -81,50 +89,35 @@
 		}
 	}
 
-	function drawWaveform() {
-		if (!analyserNode || !waveformCanvas) return;
-		const ctx = waveformCanvas.getContext('2d');
-		if (!ctx) return;
-
-		const bufferLength = analyserNode.frequencyBinCount;
-		const dataArray = new Uint8Array(bufferLength);
-		analyserNode.getByteTimeDomainData(dataArray);
-
-		waveformCanvas.width = waveformCanvas.offsetWidth || 300;
-		waveformCanvas.height = 60;
-		ctx.clearRect(0, 0, waveformCanvas.width, waveformCanvas.height);
-		ctx.strokeStyle = 'hsl(var(--brand))';
-		ctx.lineWidth = 1.5;
-		ctx.beginPath();
-
-		const sliceWidth = waveformCanvas.width / bufferLength;
-		let x = 0;
-		for (let i = 0; i < bufferLength; i++) {
-			const v = dataArray[i] / 128.0;
-			const y = (v * waveformCanvas.height) / 2;
-			if (i === 0) ctx.moveTo(x, y);
-			else ctx.lineTo(x, y);
-			x += sliceWidth;
-		}
-		ctx.stroke();
-
-		if (recording) {
-			animFrameId = requestAnimationFrame(drawWaveform);
-		}
+	function startLiveWaveform() {
+		stopLiveWaveform();
+		const tick = () => {
+			if (!recording || !analyserNode || !waveformCanvas) return;
+			drawAnalyserWaveform(waveformCanvas, analyserNode);
+			animFrameId = requestAnimationFrame(tick);
+		};
+		tick();
 	}
 
-	function stopWaveformDraw() {
+	function stopLiveWaveform() {
 		if (animFrameId !== null) {
 			cancelAnimationFrame(animFrameId);
 			animFrameId = null;
 		}
 	}
 
-	const formatTime = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+	$effect(() => {
+		if (recording || !audioBuffer || !waveformCanvas) return;
+		drawAudioBufferWaveform(waveformCanvas, audioBuffer);
+	});
+
+	const formatTime = (s: number) =>
+		`${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
 	onDestroy(() => {
-		stopWaveformDraw();
+		stopLiveWaveform();
 		if (timerInterval) clearInterval(timerInterval);
+		mediaStream?.getTracks().forEach((t) => t.stop());
 		audioContext?.close();
 	});
 </script>
@@ -150,8 +143,12 @@
 		{/if}
 	</div>
 
-	{#if recording}
-		<canvas bind:this={waveformCanvas} class="w-full rounded border border-border"></canvas>
+	{#if recording || audioBuffer}
+		<canvas
+			bind:this={waveformCanvas}
+			class="text-brand w-full rounded border border-border"
+			height={recording ? 60 : 48}
+		></canvas>
 	{/if}
 
 	<div class="space-y-3">

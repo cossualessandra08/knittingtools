@@ -36,6 +36,18 @@
 		localInvert = invert;
 	});
 
+	$effect(() => {
+		if (hasEdits) return;
+		if (
+			localContrast === contrast &&
+			localThreshold === threshold &&
+			localInvert === invert
+		) {
+			return;
+		}
+		onApply(localContrast, localThreshold, localInvert);
+	});
+
 	function tryApply() {
 		if (hasEdits) {
 			if (!confirm(dataPattern.confirmRefineDiscard)) {

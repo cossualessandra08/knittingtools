@@ -9,6 +9,8 @@ export const MIN_VOICE_DURATION_SEC = 5;
 export const AUDIO_SEGMENT_THRESHOLD_SEC = 60;
 export const DEFAULT_AUDIO_SEGMENT_SEC = 60;
 export const MAX_TERRAIN_BBOX_DEG = 0.5;
+/** Max rows/cols sent to Open-Elevation; full pattern is upsampled locally. */
+export const MAX_TERRAIN_SAMPLE_DIM = 50;
 export const UNDO_STACK_MAX = 50;
 export const ACCEPTED_AUDIO_TYPES = ['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/mp3'] as const;
 export const NOMINATIM_SEARCH_URL = 'https://nominatim.openstreetmap.org/search';
@@ -17,4 +19,6 @@ export const DEFAULT_STITCHES = 120;
 export const DEFAULT_STITCHES_PER_CM = 4.5;
 export const DEFAULT_ROWS_PER_CM = 6.4;
 export const ZOOM_LEVELS = [50, 100, 200] as const;
+/** Pattern preview zoom when editing terrain-generated patterns (includes overview at 25%). */
+export const TERRAIN_PREVIEW_ZOOM_LEVELS = [25, 50, 100, 200] as const;
 

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { dataPattern } from '$lib/copy.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import type { BitmapEditor } from '$lib/data-pattern/bitmap-editor.js';
 
@@ -8,11 +9,15 @@
 		editor,
 		activeTool = $bindable<Tool>('toggle'),
 		zoom = $bindable(100),
+		zoomLevels = [50, 100, 200],
+		onBackToConfigure,
 		onChangeSource
 	}: {
 		editor: BitmapEditor | null;
 		activeTool: Tool;
 		zoom: number;
+		zoomLevels?: readonly number[];
+		onBackToConfigure: () => void;
 		onChangeSource: () => void;
 	} = $props();
 
@@ -21,14 +26,15 @@
 		{ id: 'brush', label: 'Brush', icon: '🖌️' },
 		{ id: 'eraser', label: 'Eraser', icon: '⬜' }
 	];
-
-	const zoomLevels = [50, 100, 200] as const;
 </script>
 
 <div class="space-y-3">
 	<div class="flex flex-wrap items-center gap-2">
-		<Button type="button" variant="outline" size="sm" onclick={onChangeSource}>
-			← Change source
+		<Button type="button" variant="outline" size="sm" onclick={onBackToConfigure}>
+			← {dataPattern.backToConfigure}
+		</Button>
+		<Button type="button" variant="ghost" size="sm" onclick={onChangeSource}>
+			{dataPattern.changeSource}
 		</Button>
 
 		<div class="ml-auto flex items-center gap-1">

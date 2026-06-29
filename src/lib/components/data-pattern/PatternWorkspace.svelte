@@ -4,7 +4,8 @@
 	import RefinePanel from './RefinePanel.svelte';
 	import ExportPanel from './ExportPanel.svelte';
 	import type { BitmapEditor } from '$lib/data-pattern/bitmap-editor.js';
-	import type { ExportMode, PreviewView, Bitmap } from '$lib/data-pattern/types.js';
+	import { TERRAIN_PREVIEW_ZOOM_LEVELS, ZOOM_LEVELS } from '$lib/data-pattern/constants.js';
+	import type { ExportMode, PreviewView, Bitmap, SourceId } from '$lib/data-pattern/types.js';
 
 	type ActiveTool = 'toggle' | 'brush' | 'eraser';
 
@@ -19,9 +20,12 @@
 		threshold,
 		invert,
 		activeTool = $bindable<ActiveTool>('toggle'),
+		zoom = $bindable(100),
+		sourceId,
 		hasEdits,
 		onReset,
 		onRefineApply,
+		onBackToConfigure,
 		onChangeSource,
 		onCellInteract,
 		onDownloadPdfChart,
@@ -39,9 +43,12 @@
 		threshold: number;
 		invert: boolean;
 		activeTool: ActiveTool;
+		zoom: number;
+		sourceId: SourceId;
 		hasEdits: boolean;
 		onReset: () => void;
 		onRefineApply: (contrast: number, threshold: number, invert: boolean) => void;
+		onBackToConfigure: () => void;
 		onChangeSource: () => void;
 		onCellInteract: (col: number, row: number) => void;
 		onDownloadPdfChart: () => Promise<void>;
@@ -49,7 +56,10 @@
 		onDownloadAyabPng: () => Promise<void>;
 		onDownloadAnnotatedPdf: () => Promise<void>;
 	} = $props();
-	let zoom = $state(100);
+
+	const previewZoomLevels = $derived(
+		sourceId === 'terrain' ? TERRAIN_PREVIEW_ZOOM_LEVELS : ZOOM_LEVELS
+	);
 	let view = $state<PreviewView>('symbols');
 	let fabricView = $state(false);
 	let exportMode = $state<ExportMode>('knit-purl');
@@ -61,7 +71,14 @@
 
 <div class="data-pattern-workspace">
 	<div class="workspace-controls min-w-0 space-y-6">
-		<EditorToolbar {editor} bind:activeTool bind:zoom {onChangeSource} />
+		<EditorToolbar
+			{editor}
+			bind:activeTool
+			bind:zoom
+			zoomLevels={previewZoomLevels}
+			{onBackToConfigure}
+			{onChangeSource}
+		/>
 
 		<div class="border-t border-border pt-4">
 			<RefinePanel

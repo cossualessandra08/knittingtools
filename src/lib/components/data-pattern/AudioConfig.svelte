@@ -10,6 +10,7 @@
 		ACCEPTED_AUDIO_TYPES
 	} from '$lib/data-pattern/constants.js';
 	import { defaultAudioSegment } from '$lib/data-pattern/adapters/audio-file.js';
+	import { drawAudioBufferWaveform } from '$lib/data-pattern/waveform-draw.js';
 	import type { AudioAnalysisMode } from '$lib/data-pattern/types.js';
 
 	let {
@@ -95,29 +96,13 @@
 
 	function drawMiniWaveform() {
 		if (!waveformCanvas || !audioBuffer) return;
-		const ctx = waveformCanvas.getContext('2d');
-		if (!ctx) return;
-		const data = audioBuffer.getChannelData(0);
-		const w = waveformCanvas.offsetWidth || 300;
-		const h = 48;
-		waveformCanvas.width = w;
-		waveformCanvas.height = h;
-		ctx.clearRect(0, 0, w, h);
-		ctx.strokeStyle = 'hsl(var(--brand, 220 70% 50%))';
-		ctx.lineWidth = 1;
-		ctx.beginPath();
-		const step = Math.ceil(data.length / w);
-		for (let x = 0; x < w; x++) {
-			let max = 0;
-			for (let i = x * step; i < (x + 1) * step && i < data.length; i++) {
-				max = Math.max(max, Math.abs(data[i]));
-			}
-			const y = (1 - max) * (h / 2);
-			if (x === 0) ctx.moveTo(x, y);
-			else ctx.lineTo(x, y);
-		}
-		ctx.stroke();
+		drawAudioBufferWaveform(waveformCanvas, audioBuffer);
 	}
+
+	$effect(() => {
+		if (!audioBuffer || !waveformCanvas) return;
+		drawAudioBufferWaveform(waveformCanvas, audioBuffer);
+	});
 
 	const formatTime = (s: number) =>
 		`${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
@@ -159,7 +144,7 @@
 	</div>
 
 	{#if audioBuffer}
-		<canvas bind:this={waveformCanvas} class="w-full rounded border border-border" height="48"
+		<canvas bind:this={waveformCanvas} class="text-brand w-full rounded border border-border" height="48"
 		></canvas>
 
 		{#if showSegmentPicker}
