@@ -64,7 +64,7 @@ export interface PatternDimensions {
 
 export interface SourceAdapter<TInput, TConfig> {
 	id: SourceId;
-	analyze(input: TInput, config: TConfig & SharedConfig): Promise<SourceMatrix>;
-	estimateRows(input: TInput, config: TConfig & SharedConfig): number;
+	analyze(input: TInput, config: TConfig, shared: SharedConfig): Promise<SourceMatrix>;
+	estimateRows(input: TInput, config: TConfig, shared: SharedConfig): number;
 }
 

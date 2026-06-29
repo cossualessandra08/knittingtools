@@ -4,6 +4,7 @@
 import GridNineIcon from 'phosphor-svelte/lib/GridNineIcon';
 import PaletteIcon from 'phosphor-svelte/lib/PaletteIcon';
 import RulerIcon from 'phosphor-svelte/lib/RulerIcon';
+import WaveformIcon from 'phosphor-svelte/lib/WaveformIcon';
 import type { ToolDefinition } from './types.js';
 
 export const tools = [
@@ -41,6 +42,18 @@ export const tools = [
 			'Import a pattern or draw one on a grid, then work through it with live row highlights, colour-change instructions, and a segment bar.',
 			'Navigate stitch by stitch without counting manually — the assistant tracks your position and shows what to knit next.',
 			'Everything runs in your browser; your pattern and image never leave your device.'
+		]
+	},
+	{
+		slug: 'data-pattern',
+		href: '/tools/data-pattern',
+		icon: WaveformIcon,
+		title: 'Data pattern generator',
+		teaser: 'Turn voice, audio, or terrain into a knitting pattern.',
+		portico: [
+			'Pick a data source — your voice, an audio file, or a landscape — and generate a stitch pattern.',
+			'Refine contrast, edit stitches, then export as a knit/purl chart or a two-colour jacquard file for AYAB.',
+			'Voice and audio run locally in your browser. Terrain mode requests elevation data for the map area you select.'
 		]
 	}
 ] as const satisfies readonly ToolDefinition[];
