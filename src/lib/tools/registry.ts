@@ -3,6 +3,7 @@
  */
 import Ruler from '@lucide/svelte/icons/ruler';
 import Grid3x3 from '@lucide/svelte/icons/grid-3x3';
+import Palette from '@lucide/svelte/icons/palette';
 import type { ToolDefinition } from './types.js';
 
 export const tools = [
@@ -28,6 +29,18 @@ export const tools = [
 			'Upload a photo and convert it to a two-color knitting pattern — one pixel equals one stitch.',
 			'Set your needle/row ratio so the motif is not squashed on the fabric, then export a PNG for AYAB or a chart PDF.',
 			'Everything runs in your browser; your image never leaves your device.'
+		]
+	},
+	{
+		slug: 'intarsia-assistant',
+		href: '/tools/intarsia-assistant',
+		icon: Palette,
+		title: 'Intarsia work assistant',
+		teaser: 'Step-by-step guidance while you knit intarsia — row by row, stitch by stitch.',
+		portico: [
+			'Import a pattern or draw one on a grid, then work through it with live row highlights, colour-change instructions, and a segment bar.',
+			'Navigate stitch by stitch without counting manually — the assistant tracks your position and shows what to knit next.',
+			'Everything runs in your browser; your pattern and image never leave your device.'
 		]
 	}
 ] as const satisfies readonly ToolDefinition[];

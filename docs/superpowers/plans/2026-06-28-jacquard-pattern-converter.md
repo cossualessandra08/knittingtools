@@ -14,30 +14,30 @@
 
 ## File map
 
-| File | Responsibility |
-| --- | --- |
-| `src/lib/jacquard/constants.ts` | `MAX_NEEDLES`, `MAX_FILE_BYTES`, accepted MIME types |
-| `src/lib/jacquard/types.ts` | `CropRect`, `GaugeRatio`, `PatternDimensions`, `ConversionParams` |
-| `src/lib/jacquard/dimensions.ts` | Row count, physical cm, crop aspect ratio |
-| `src/lib/jacquard/dimensions.test.ts` | Dimension math tests |
-| `src/lib/jacquard/convert.ts` | Grayscale, contrast, threshold, invert → `Uint8Array` bitmap |
-| `src/lib/jacquard/convert.test.ts` | Conversion pipeline tests |
-| `src/lib/jacquard/canvas.ts` | Crop+resize, bitmap→ImageData, load file helpers |
-| `src/lib/jacquard/canvas.test.ts` | Canvas helpers (browser vitest) |
-| `src/lib/jacquard/export-ayab.ts` | Raw 1-bit PNG download |
-| `src/lib/jacquard/export-ayab.test.ts` | AYAB export dimension/color tests |
-| `src/lib/jacquard/export-docs.ts` | Annotated PNG + PDF with grid, numbers, legend |
-| `src/lib/jacquard/export-docs.test.ts` | Documentation export smoke tests |
-| `src/lib/components/jacquard/JacquardEditor.svelte` | Main editor: state, pipeline orchestration, layout |
-| `src/lib/components/jacquard/ImageUploadZone.svelte` | Drag & drop + file picker |
-| `src/lib/components/jacquard/CropCanvas.svelte` | Draggable crop rect + fit-proportions button |
-| `src/lib/components/jacquard/PatternPreview.svelte` | Bitmap preview, fabric toggle, zoom |
-| `src/lib/components/tools/ToolPageLayout.svelte` | Add optional `wide` variant |
-| `src/routes/tools/jacquard-pattern/+page.svelte` | Tool page |
-| `src/routes/tools/jacquard-pattern/+page.ts` | `prerender = true` |
-| `src/lib/tools/registry.ts` | Add jacquard-pattern entry |
-| `messages/en.json`, `messages/it.json` | Tool copy + UI strings |
-| `e2e/jacquard-pattern.e2e.ts` | Navigation + basic interaction smoke |
+| File                                                 | Responsibility                                                    |
+| ---------------------------------------------------- | ----------------------------------------------------------------- |
+| `src/lib/jacquard/constants.ts`                      | `MAX_NEEDLES`, `MAX_FILE_BYTES`, accepted MIME types              |
+| `src/lib/jacquard/types.ts`                          | `CropRect`, `GaugeRatio`, `PatternDimensions`, `ConversionParams` |
+| `src/lib/jacquard/dimensions.ts`                     | Row count, physical cm, crop aspect ratio                         |
+| `src/lib/jacquard/dimensions.test.ts`                | Dimension math tests                                              |
+| `src/lib/jacquard/convert.ts`                        | Grayscale, contrast, threshold, invert → `Uint8Array` bitmap      |
+| `src/lib/jacquard/convert.test.ts`                   | Conversion pipeline tests                                         |
+| `src/lib/jacquard/canvas.ts`                         | Crop+resize, bitmap→ImageData, load file helpers                  |
+| `src/lib/jacquard/canvas.test.ts`                    | Canvas helpers (browser vitest)                                   |
+| `src/lib/jacquard/export-ayab.ts`                    | Raw 1-bit PNG download                                            |
+| `src/lib/jacquard/export-ayab.test.ts`               | AYAB export dimension/color tests                                 |
+| `src/lib/jacquard/export-docs.ts`                    | Annotated PNG + PDF with grid, numbers, legend                    |
+| `src/lib/jacquard/export-docs.test.ts`               | Documentation export smoke tests                                  |
+| `src/lib/components/jacquard/JacquardEditor.svelte`  | Main editor: state, pipeline orchestration, layout                |
+| `src/lib/components/jacquard/ImageUploadZone.svelte` | Drag & drop + file picker                                         |
+| `src/lib/components/jacquard/CropCanvas.svelte`      | Draggable crop rect + fit-proportions button                      |
+| `src/lib/components/jacquard/PatternPreview.svelte`  | Bitmap preview, fabric toggle, zoom                               |
+| `src/lib/components/tools/ToolPageLayout.svelte`     | Add optional `wide` variant                                       |
+| `src/routes/tools/jacquard-pattern/+page.svelte`     | Tool page                                                         |
+| `src/routes/tools/jacquard-pattern/+page.ts`         | `prerender = true`                                                |
+| `src/lib/tools/registry.ts`                          | Add jacquard-pattern entry                                        |
+| `messages/en.json`, `messages/it.json`               | Tool copy + UI strings                                            |
+| `e2e/jacquard-pattern.e2e.ts`                        | Navigation + basic interaction smoke                              |
 
 ---
 
@@ -179,11 +179,13 @@ export type ConversionParams = {
 ```ts
 import type { CropRect, GaugeRatio, PatternDimensions } from './types.js';
 
-export function calculatePatternDimensions(input: {
-	stitches: number;
-	cropWidthPx: number;
-	cropHeightPx: number;
-} & GaugeRatio): PatternDimensions {
+export function calculatePatternDimensions(
+	input: {
+		stitches: number;
+		cropWidthPx: number;
+		cropHeightPx: number;
+	} & GaugeRatio
+): PatternDimensions {
 	const cropAspect = input.cropWidthPx / input.cropHeightPx;
 	const widthCm = input.stitches / input.stitchesPerCm;
 	const heightCm = widthCm / cropAspect;
@@ -196,10 +198,12 @@ export function calculatePatternDimensions(input: {
 	};
 }
 
-export function patternCropAspectRatio(input: {
-	stitches: number;
-	rows: number;
-} & GaugeRatio): number {
+export function patternCropAspectRatio(
+	input: {
+		stitches: number;
+		rows: number;
+	} & GaugeRatio
+): number {
 	return (input.stitches * input.rowsPerCm) / (input.rows * input.stitchesPerCm);
 }
 
@@ -282,10 +286,7 @@ describe('applyContrast', () => {
 describe('imageDataToBitmap', () => {
 	it('maps dark pixels to foreground (1) and light to background (0)', () => {
 		const data = new ImageData(2, 1);
-		data.data.set([
-			0, 0, 0, 255,
-			255, 255, 255, 255
-		]);
+		data.data.set([0, 0, 0, 255, 255, 255, 255, 255]);
 		const bitmap = imageDataToBitmap(data, { contrast: 0, threshold: 128, invert: false });
 		expect(Array.from(bitmap)).toEqual([1, 0]);
 	});
@@ -1099,7 +1100,9 @@ import path from 'node:path';
 test('jacquard tool page loads from catalog', async ({ page }) => {
 	await page.goto('/');
 	await page.getByRole('link', { name: /Jacquard pattern converter/i }).click();
-	await expect(page.getByRole('heading', { level: 1 })).toContainText(/Jacquard pattern converter/i);
+	await expect(page.getByRole('heading', { level: 1 })).toContainText(
+		/Jacquard pattern converter/i
+	);
 	await expect(page.getByText(/Export for AYAB/i)).toBeVisible();
 });
 
@@ -1137,23 +1140,23 @@ git commit -m "test(e2e): add jacquard pattern converter smoke tests"
 
 ## Spec coverage checklist
 
-| Spec requirement | Task |
-| --- | --- |
-| Width in stitches, rows computed | Task 1 |
-| Max 200 needles warning + confirm export | Task 8 |
-| Rapporto aghi/corse fields | Task 6, 8 |
-| Manual crop + fit proportions | Task 8 |
-| Threshold, contrast, invert, no dithering | Task 2, 8 |
-| Background white / foreground black | Task 2, 5 |
-| Square preview + fabric toggle | Task 8 |
-| Export for AYAB PNG | Task 4, 8 |
-| Export documentation PNG + PDF | Task 5, 8 |
-| Single-page editor layout | Task 8, 9 |
-| Client-side only | All canvas modules |
-| IT/EN copy | Task 6 |
-| Hub integration | Task 6, 9 |
-| Row/col numbering every 10, tick every 5 | Task 5 |
-| Error messages | Task 3, 6, 8 |
+| Spec requirement                          | Task               |
+| ----------------------------------------- | ------------------ |
+| Width in stitches, rows computed          | Task 1             |
+| Max 200 needles warning + confirm export  | Task 8             |
+| Rapporto aghi/corse fields                | Task 6, 8          |
+| Manual crop + fit proportions             | Task 8             |
+| Threshold, contrast, invert, no dithering | Task 2, 8          |
+| Background white / foreground black       | Task 2, 5          |
+| Square preview + fabric toggle            | Task 8             |
+| Export for AYAB PNG                       | Task 4, 8          |
+| Export documentation PNG + PDF            | Task 5, 8          |
+| Single-page editor layout                 | Task 8, 9          |
+| Client-side only                          | All canvas modules |
+| IT/EN copy                                | Task 6             |
+| Hub integration                           | Task 6, 9          |
+| Row/col numbering every 10, tick every 5  | Task 5             |
+| Error messages                            | Task 3, 6, 8       |
 
 ---
 

@@ -17,8 +17,6 @@
 		onFitProportions: () => void;
 	} = $props();
 
-	const maxDisplayWidth = 480;
-
 	const cropPercent = $derived({
 		left: (crop.x / imageWidth) * 100,
 		top: (crop.y / imageHeight) * 100,

@@ -2,8 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { tools } from './registry.js';
 
 describe('tools registry', () => {
-	it('has at least one tool', () => {
-		expect(tools.length).toBeGreaterThan(0);
+	it('has three tools', () => {
+		expect(tools.length).toBe(3);
+	});
+
+	it('includes intarsia-assistant', () => {
+		expect(tools.map((t) => t.slug)).toContain('intarsia-assistant');
 	});
 
 	it('has unique slugs', () => {

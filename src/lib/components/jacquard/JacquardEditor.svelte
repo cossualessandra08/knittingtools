@@ -9,10 +9,7 @@
 	import { Slider } from '$lib/components/ui/slider/index.js';
 	import { jacquard } from '$lib/copy.js';
 	import { validateImageFile, loadImageFromFile, cropAndResize } from '$lib/jacquard/canvas.js';
-	import {
-		MAX_NEEDLES,
-		LONG_PATTERN_ROW_WARNING
-	} from '$lib/jacquard/constants.js';
+	import { MAX_NEEDLES, LONG_PATTERN_ROW_WARNING } from '$lib/jacquard/constants.js';
 	import { imageDataToBitmap } from '$lib/jacquard/convert.js';
 	import {
 		calculatePatternDimensions,
@@ -193,7 +190,7 @@
 			<button
 				type="button"
 				disabled={!canAccessStep(step)}
-				class="min-w-0 truncate rounded-md border px-1.5 py-2 text-center text-xs font-medium transition-colors sm:px-2 sm:text-sm disabled:cursor-not-allowed disabled:opacity-40 {activeStep ===
+				class="min-w-0 truncate rounded-md border px-1.5 py-2 text-center text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 sm:px-2 sm:text-sm {activeStep ===
 				step
 					? 'border-brand bg-brand text-brand-foreground'
 					: 'border-border bg-muted/50 text-foreground hover:bg-muted'}"
@@ -207,7 +204,7 @@
 
 	<div class="jacquard-editor-layout">
 		<div class="jacquard-editor-controls min-w-0 space-y-6">
-		{#if activeStep === 'image'}
+			{#if activeStep === 'image'}
 				<div class="space-y-4">
 					<ImageUploadZone onFile={handleFile} onBrowse={openFilePicker} />
 					{#if image}
