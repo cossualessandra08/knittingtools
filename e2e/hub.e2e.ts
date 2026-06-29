@@ -1,8 +1,9 @@
 import { expect, test } from '@playwright/test';
 
-test('home shows catalog and navigates to needle chart', async ({ page }) => {
+test('home shows intro, catalog, and navigates to needle chart', async ({ page }) => {
 	await page.goto('/');
 	await expect(page.getByRole('heading', { level: 1 })).toContainText(/Knitting Tools/i);
+	await expect(page.getByText(/Free tools for knitting/i)).toBeVisible();
 	await page.getByRole('link', { name: /Needle size chart/i }).click();
 	await expect(page.getByRole('heading', { level: 1 })).toContainText(/Needle size chart/i);
 	await expect(page.getByRole('link', { name: /All tools/i })).toBeVisible();
