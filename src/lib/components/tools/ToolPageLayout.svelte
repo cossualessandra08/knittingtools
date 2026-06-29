@@ -18,11 +18,9 @@
 </script>
 
 <section class="space-y-4">
-	<div class="flex size-14 items-center justify-center rounded-xl border text-brand">
-		<Icon class="size-7" aria-hidden="true" />
-	</div>
-	<h1 class="text-3xl font-semibold tracking-tight">{tool.title}</h1>
-	<div class="max-w-2xl space-y-3 text-base leading-relaxed text-muted-foreground">
+	<Icon size={28} weight="regular" class="text-foreground" aria-hidden="true" />
+	<h1 class="font-heading text-3xl font-medium tracking-tight">{tool.title}</h1>
+	<div class="max-w-2xl space-y-3 text-base font-light leading-relaxed text-muted-foreground">
 		{#each tool.portico as paragraph, index (index)}
 			<p>{paragraph}</p>
 		{/each}
@@ -36,7 +34,10 @@
 </section>
 
 <p class="mt-12">
-	<a href={resolve('/')} class="font-medium text-brand hover:underline">
+	<a
+		href={resolve('/')}
+		class="font-medium text-foreground transition-colors hover:bg-hub-hover hover:underline"
+	>
 		← {site.backToCatalog}
 	</a>
 </p>
