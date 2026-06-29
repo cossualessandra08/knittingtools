@@ -1,16 +1,16 @@
 /**
  * Add a tool: append an entry here and create src/routes/tools/<slug>/+page.svelte using ToolPageLayout.
  */
-import Ruler from '@lucide/svelte/icons/ruler';
-import Grid3x3 from '@lucide/svelte/icons/grid-3x3';
-import Palette from '@lucide/svelte/icons/palette';
+import GridNineIcon from 'phosphor-svelte/lib/GridNineIcon';
+import PaletteIcon from 'phosphor-svelte/lib/PaletteIcon';
+import RulerIcon from 'phosphor-svelte/lib/RulerIcon';
 import type { ToolDefinition } from './types.js';
 
 export const tools = [
 	{
 		slug: 'needle-chart',
 		href: '/tools/needle-chart',
-		icon: Ruler,
+		icon: RulerIcon,
 		title: 'Needle size chart',
 		teaser: 'Look up metric and US knitting needle sizes.',
 		portico: [
@@ -22,7 +22,7 @@ export const tools = [
 	{
 		slug: 'jacquard-pattern',
 		href: '/tools/jacquard-pattern',
-		icon: Grid3x3,
+		icon: GridNineIcon,
 		title: 'Jacquard pattern converter',
 		teaser: 'Turn a photo into a 1-bit jacquard pattern for AYAB.',
 		portico: [
@@ -34,7 +34,7 @@ export const tools = [
 	{
 		slug: 'intarsia-assistant',
 		href: '/tools/intarsia-assistant',
-		icon: Palette,
+		icon: PaletteIcon,
 		title: 'Intarsia work assistant',
 		teaser: 'Step-by-step guidance while you knit intarsia — row by row, stitch by stitch.',
 		portico: [
