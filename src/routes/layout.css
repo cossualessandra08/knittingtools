@@ -9,8 +9,6 @@
 @plugin '@tailwindcss/typography';
 
 :root {
-	--brand: oklch(0.55 0.08 200);
-	--brand-foreground: oklch(0.985 0 0);
 	--background: oklch(1 0 0);
 	--foreground: oklch(0.141 0.005 285.823);
 	--card: oklch(1 0 0);
@@ -34,6 +32,9 @@
 	--chart-3: oklch(0.648 0.2 131.684);
 	--chart-4: oklch(0.532 0.157 131.589);
 	--chart-5: oklch(0.453 0.124 130.933);
+	--hub-hover: oklch(0.85 0.15 130 / 0.25);
+	--brand: var(--chart-1);
+	--brand-foreground: var(--foreground);
 	--radius: 0rem;
 	--sidebar: oklch(0.985 0 0);
 	--sidebar-foreground: oklch(0.141 0.005 285.823);
@@ -69,6 +70,8 @@
 	--chart-3: oklch(0.648 0.2 131.684);
 	--chart-4: oklch(0.532 0.157 131.589);
 	--chart-5: oklch(0.453 0.124 130.933);
+	--brand: var(--chart-1);
+	--brand-foreground: var(--foreground);
 	--sidebar: oklch(0.21 0.006 285.885);
 	--sidebar-foreground: oklch(0.985 0 0);
 	--sidebar-primary: oklch(0.488 0.243 264.376);
@@ -113,6 +116,7 @@
 	--color-foreground: var(--foreground);
 	--color-brand: var(--brand);
 	--color-brand-foreground: var(--brand-foreground);
+	--color-hub-hover: var(--hub-hover);
 	--color-background: var(--background);
 	--radius-sm: calc(var(--radius) * 0.6);
 	--radius-md: calc(var(--radius) * 0.8);
