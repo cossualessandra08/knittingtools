@@ -16,7 +16,10 @@
 	import ImageImportPanel from './ImageImportPanel.svelte';
 
 	import { UndoStack, applyBrush, floodFill } from '$lib/intarsia/grid-editor.js';
-	import { analyzeRow, activeSegmentIndex as calcActiveSegIdx } from '$lib/intarsia/row-analysis.js';
+	import {
+		analyzeRow,
+		activeSegmentIndex as calcActiveSegIdx
+	} from '$lib/intarsia/row-analysis.js';
 	import { readingDirectionForRow, rowSideForRow } from '$lib/intarsia/reading-direction.js';
 	import {
 		prevStitch as doPrevStitch,
@@ -386,7 +389,11 @@
 				<Button variant="ghost" size="sm" onclick={() => (setupMode = 'choose')}>← Back</Button>
 			{/if}
 			<h2 class="text-xl font-semibold">
-				{setupMode === 'choose' ? intarsia.hintStart : setupMode === 'blank' ? intarsia.createGrid : intarsia.uploadImage}
+				{setupMode === 'choose'
+					? intarsia.hintStart
+					: setupMode === 'blank'
+						? intarsia.createGrid
+						: intarsia.uploadImage}
 			</h2>
 		</div>
 
@@ -431,7 +438,6 @@
 					</div>
 				</button>
 			</div>
-
 		{:else if setupMode === 'blank'}
 			<div class="flex flex-col gap-4">
 				<div class="grid grid-cols-2 gap-3">
@@ -460,13 +466,12 @@
 				</div>
 				<Button onclick={createBlankGrid} class="w-full">{intarsia.createGrid}</Button>
 			</div>
-
 		{:else if setupMode === 'import'}
 			<ImageImportPanel onConfirm={handleImageImport} />
 		{/if}
 	</div>
 
-<!-- ═══════════════════════════════════════════════════════════════════════════
+	<!-- ═══════════════════════════════════════════════════════════════════════════
      WORK PHASE
 ════════════════════════════════════════════════════════════════════════════ -->
 {:else}
@@ -543,7 +548,7 @@
 				showRsWs={project.settings.showRsWs}
 			/>
 			<div class="border-t border-border pt-4">
-				<p class="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+				<p class="mb-3 text-xs font-medium tracking-wide text-muted-foreground uppercase">
 					Colour legend
 				</p>
 				<ColourLegend

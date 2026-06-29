@@ -5,7 +5,10 @@ async function createBlankGrid(page: Page, width = 10, height = 5) {
 	await page.evaluate(() => localStorage.clear());
 	await page.reload();
 
-	await page.getByRole('button', { name: /Create grid/i }).first().click();
+	await page
+		.getByRole('button', { name: /Create grid/i })
+		.first()
+		.click();
 	await page.getByLabel('Width (stitches)').fill(String(width));
 	await page.getByLabel('Height (rows)').fill(String(height));
 	await page.getByRole('button', { name: /^Create grid$/i }).click();

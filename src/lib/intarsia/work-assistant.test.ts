@@ -1,12 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-	prevStitch,
-	nextStitch,
-	prevRow,
-	nextRow,
-	jumpToRow,
-	setStitchPosition
-} from './work-assistant.js';
+import { prevStitch, nextStitch, nextRow, jumpToRow, setStitchPosition } from './work-assistant.js';
 import type { IntarsiaSettings } from './types.js';
 
 const settings: IntarsiaSettings = {

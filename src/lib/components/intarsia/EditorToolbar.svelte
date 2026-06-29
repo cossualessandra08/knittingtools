@@ -38,7 +38,9 @@
 </script>
 
 {#if visible}
-	<div class="flex flex-wrap items-center gap-1.5 rounded-lg border border-border bg-background p-2">
+	<div
+		class="flex flex-wrap items-center gap-1.5 rounded-lg border border-border bg-background p-2"
+	>
 		<!-- Drawing tools -->
 		<div class="flex items-center gap-0.5">
 			{#each tools as tool (tool.id)}
@@ -65,7 +67,7 @@
 					<button
 						class="size-5 rounded-sm border transition-all
 						{activeColourId === entry.id
-							? 'border-ring ring-2 ring-ring/50 scale-110'
+							? 'scale-110 border-ring ring-2 ring-ring/50'
 							: 'border-border hover:scale-105'}"
 						style="background-color: {entry.hex};"
 						onclick={() => (activeColourId = entry.id)}

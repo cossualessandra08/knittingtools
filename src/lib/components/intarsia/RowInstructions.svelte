@@ -19,19 +19,19 @@
 	} = $props();
 
 	const colourMap = $derived.by(() => {
-		const m = new Map<number, ColourEntry>();
-		for (const c of palette) m.set(c.id, c);
+		const m: Record<number, ColourEntry> = {};
+		for (const c of palette) m[c.id] = c;
 		return m;
 	});
 
 	const directionArrow = $derived(direction === 'ltr' ? '→' : '←');
 
 	function colourName(id: number): string {
-		return colourMap.get(id)?.name ?? `Colour ${id}`;
+		return colourMap[id]?.name ?? `Colour ${id}`;
 	}
 
 	function colourHex(id: number): string {
-		return colourMap.get(id)?.hex ?? '#cccccc';
+		return colourMap[id]?.hex ?? '#cccccc';
 	}
 </script>
 
@@ -77,7 +77,7 @@
 							style="background-color: {colourHex(id)};"
 						></span>
 						<span>{colourName(id)}:</span>
-						<span class="tabular-nums font-medium text-foreground">{count}</span>
+						<span class="font-medium text-foreground tabular-nums">{count}</span>
 					</li>
 				{/each}
 				<li class="mt-1 font-medium text-foreground">

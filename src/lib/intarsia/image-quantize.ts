@@ -125,10 +125,7 @@ function buildPalette(centroids: Rgb[]): ColourEntry[] {
 	}));
 }
 
-function buildMatrix(
-	image: ImageData,
-	assignments: number[]
-): PatternMatrix {
+function buildMatrix(image: ImageData, assignments: number[]): PatternMatrix {
 	const { width, height } = image;
 	const cells = new Uint8Array(width * height);
 

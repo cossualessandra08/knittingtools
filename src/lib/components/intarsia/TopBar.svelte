@@ -67,7 +67,10 @@
 		</span>
 	{/if}
 	{#if direction !== undefined}
-		<span class="text-base text-muted-foreground" aria-label={direction === 'ltr' ? intarsia.directionLtr : intarsia.directionRtl}>
+		<span
+			class="text-base text-muted-foreground"
+			aria-label={direction === 'ltr' ? intarsia.directionLtr : intarsia.directionRtl}
+		>
 			{directionArrow}
 		</span>
 	{/if}
@@ -84,7 +87,7 @@
 		</span>
 	{/if}
 
-	<div class="ml-auto flex items-center gap-1.5 flex-wrap">
+	<div class="ml-auto flex flex-wrap items-center gap-1.5">
 		<!-- RS/WS toggle -->
 		<Button
 			variant={showRsWs ? 'secondary' : 'outline'}

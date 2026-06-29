@@ -15,13 +15,13 @@
 	} = $props();
 
 	const colourMap = $derived.by(() => {
-		const m = new Map<number, ColourEntry>();
-		for (const c of palette) m.set(c.id, c);
+		const m: Record<number, ColourEntry> = {};
+		for (const c of palette) m[c.id] = c;
 		return m;
 	});
 
 	function hex(id: number): string {
-		return colourMap.get(id)?.hex ?? '#cccccc';
+		return colourMap[id]?.hex ?? '#cccccc';
 	}
 
 	/** Width of each block proportional to run length (min 24px). */
@@ -44,13 +44,13 @@
 					? 'border-border opacity-60'
 					: 'border-border'}"
 			style="{blockStyle(run)} height: 2rem;"
-			title="{run.length} {colourMap.get(run.colourId)?.name ?? `Colour ${run.colourId}`}"
+			title="{run.length} {colourMap[run.colourId]?.name ?? `Colour ${run.colourId}`}"
 			aria-label="{run.length} stitches, segment {i + 1}"
 		>
 			{#if isCompleted}
 				<!-- checkmark overlay -->
 				<span
-					class="pointer-events-none select-none text-xs font-bold drop-shadow"
+					class="pointer-events-none text-xs font-bold drop-shadow select-none"
 					style="color: {hex(run.colourId) === '#ffffff' || hex(run.colourId) === '#FFFFFF'
 						? '#444'
 						: 'white'};"
@@ -60,7 +60,7 @@
 			{:else if isActive}
 				<!-- active triangle -->
 				<span
-					class="pointer-events-none select-none text-xs font-bold drop-shadow"
+					class="pointer-events-none text-xs font-bold drop-shadow select-none"
 					style="color: {hex(run.colourId) === '#ffffff' || hex(run.colourId) === '#FFFFFF'
 						? '#444'
 						: 'white'};"

@@ -4,8 +4,7 @@ import { quantizeImageData, rgbToHex } from './image-quantize.js';
 describe('image-quantize', () => {
 	it('reduces pixels to at most N colours', () => {
 		const data = new Uint8ClampedArray([
-			255, 0, 0, 255, 0, 0, 255, 0,
-			0, 0, 255, 255, 0, 0, 255, 255
+			255, 0, 0, 255, 0, 0, 255, 0, 0, 0, 255, 255, 0, 0, 255, 255
 		]);
 		const image = { data, width: 2, height: 2 } as ImageData;
 		const result = quantizeImageData(image, 2);

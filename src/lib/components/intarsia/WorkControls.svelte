@@ -23,7 +23,7 @@
 		size="sm"
 		{disabled}
 		onclick={onPrevRow}
-		class="shrink-0 md:h-9 h-11 md:text-sm text-base"
+		class="h-11 shrink-0 text-base md:h-9 md:text-sm"
 		aria-label={intarsia.prevRow}
 	>
 		{intarsia.prevRow}
@@ -35,7 +35,7 @@
 			size="icon"
 			{disabled}
 			onclick={onPrevStitch}
-			class="shrink-0 md:size-9 size-11 md:text-sm text-lg"
+			class="size-11 shrink-0 text-lg md:size-9 md:text-sm"
 			aria-label={intarsia.prevStitch}
 		>
 			←
@@ -45,7 +45,7 @@
 			size="icon"
 			{disabled}
 			onclick={onNextStitch}
-			class="shrink-0 md:size-9 size-11 md:text-sm text-lg"
+			class="size-11 shrink-0 text-lg md:size-9 md:text-sm"
 			aria-label={intarsia.nextStitch}
 		>
 			→
@@ -57,7 +57,7 @@
 		size="sm"
 		{disabled}
 		onclick={onNextRow}
-		class="shrink-0 md:h-9 h-11 md:text-sm text-base"
+		class="h-11 shrink-0 text-base md:h-9 md:text-sm"
 		aria-label={intarsia.nextRow}
 	>
 		{intarsia.nextRow}

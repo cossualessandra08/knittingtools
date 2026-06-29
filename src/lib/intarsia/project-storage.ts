@@ -1,9 +1,4 @@
-import {
-	AUTOSAVE_KEY,
-	MAX_COLOURS,
-	PROJECT_FILE_VERSION,
-	ZOOM_LEVELS
-} from './constants.js';
+import { AUTOSAVE_KEY, MAX_COLOURS, PROJECT_FILE_VERSION, ZOOM_LEVELS } from './constants.js';
 import { createDefaultPalette } from './colour-palette.js';
 import { createEmptyMatrix, validateMatrixDimensions } from './pattern-matrix.js';
 import type {

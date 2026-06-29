@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import type { Pathname } from '$app/types';
 	import { resolve } from '$app/paths';
 	import { site } from '$lib/copy.js';
 	import type { ToolDefinition } from '$lib/tools/types.js';

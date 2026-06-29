@@ -27,7 +27,11 @@ export function prevStitch(
 	width: number,
 	settings: IntarsiaSettings
 ): WorkPosition {
-	const direction = readingDirectionForRow(position.row, settings.readingMode, settings.manualDirection);
+	const direction = readingDirectionForRow(
+		position.row,
+		settings.readingMode,
+		settings.manualDirection
+	);
 	const delta = direction === 'ltr' ? -1 : -1;
 	return { ...position, stitch: clampStitch(position.stitch + delta, width) };
 }
@@ -37,7 +41,11 @@ export function nextStitch(
 	width: number,
 	settings: IntarsiaSettings
 ): WorkPosition {
-	const direction = readingDirectionForRow(position.row, settings.readingMode, settings.manualDirection);
+	const direction = readingDirectionForRow(
+		position.row,
+		settings.readingMode,
+		settings.manualDirection
+	);
 	const delta = direction === 'ltr' ? 1 : -1;
 	return { ...position, stitch: clampStitch(position.stitch + delta, width) };
 }
@@ -64,11 +72,7 @@ export function nextRow(
 	return { row, stitch: rowStartStitch(direction, width) };
 }
 
-export function jumpToRow(
-	uiRow: number,
-	width: number,
-	settings: IntarsiaSettings
-): WorkPosition {
+export function jumpToRow(uiRow: number, width: number, settings: IntarsiaSettings): WorkPosition {
 	const row = uiRow - 1;
 	const direction = readingDirectionForRow(uiRow, settings.readingMode, settings.manualDirection);
 	return { row, stitch: rowStartStitch(direction, width) };

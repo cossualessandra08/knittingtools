@@ -18,12 +18,7 @@ export const jacquard = {
 	stitchesPerCm: 'Stitches per cm',
 	rowsPerCm: 'Rows per cm',
 	rowsComputed: 'Rows (computed)',
-	dimensionsSummary: (p: {
-		stitches: string;
-		rows: string;
-		widthCm: string;
-		heightCm: string;
-	}) =>
+	dimensionsSummary: (p: { stitches: string; rows: string; widthCm: string; heightCm: string }) =>
 		`${p.stitches} stitches × ${p.rows} rows — about ${p.widthCm} × ${p.heightCm} cm on fabric`,
 	threshold: 'Black / white balance',
 	invert: 'Invert colors',
@@ -71,8 +66,7 @@ export const intarsia = {
 	rowsPerCm: 'Rows per cm',
 	zoom: 'Zoom',
 	totalStitches: (n: number) => `${n} stitches`,
-	editPatternWarning:
-		'Editing the pattern may change instructions for the current row. Continue?',
+	editPatternWarning: 'Editing the pattern may change instructions for the current row. Continue?',
 	errorUnsupportedType: 'Unsupported format. Use JPG or PNG.',
 	errorFileTooLarge: 'Image too large. Try a smaller file.',
 	errorPatternExceedsLimits: 'Pattern exceeds 200 stitches or 300 rows.',

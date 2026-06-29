@@ -4,7 +4,13 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
 	import { Slider } from '$lib/components/ui/slider/index.js';
-	import { ACCEPTED_IMAGE_TYPES, MAX_COLOURS, MAX_FILE_BYTES, MAX_STITCHES, MAX_ROWS } from '$lib/intarsia/constants.js';
+	import {
+		ACCEPTED_IMAGE_TYPES,
+		MAX_COLOURS,
+		MAX_FILE_BYTES,
+		MAX_STITCHES,
+		MAX_ROWS
+	} from '$lib/intarsia/constants.js';
 
 	let {
 		onConfirm
@@ -66,13 +72,15 @@
 
 <div class="flex flex-col gap-4">
 	<!-- Drop zone -->
-	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div
 		role="button"
 		tabindex="0"
 		class="flex min-h-32 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-border bg-muted/30 px-4 py-8 text-center text-sm text-muted-foreground transition-colors
 		{dragging ? 'border-primary bg-primary/5' : 'hover:border-primary/60'}"
-		ondragover={(e) => { e.preventDefault(); dragging = true; }}
+		ondragover={(e) => {
+			e.preventDefault();
+			dragging = true;
+		}}
 		ondragleave={() => (dragging = false)}
 		ondrop={handleDrop}
 		onclick={() => fileInputEl?.click()}
@@ -80,11 +88,7 @@
 		aria-label={intarsia.uploadImage}
 	>
 		{#if previewUrl}
-			<img
-				src={previewUrl}
-				alt="Preview"
-				class="mb-2 max-h-28 max-w-full rounded object-contain"
-			/>
+			<img src={previewUrl} alt="Preview" class="mb-2 max-h-28 max-w-full rounded object-contain" />
 			<span class="text-xs">{file?.name}</span>
 		{:else}
 			<p>{intarsia.uploadImage}</p>
@@ -136,21 +140,11 @@
 			<Label class="text-xs">{intarsia.colourCount}</Label>
 			<span class="text-xs font-medium tabular-nums">{colourCount}</span>
 		</div>
-		<Slider
-			type="single"
-			bind:value={colourCount}
-			min={2}
-			max={MAX_COLOURS}
-			step={1}
-		/>
+		<Slider type="single" bind:value={colourCount} min={2} max={MAX_COLOURS} step={1} />
 	</div>
 
 	<!-- Confirm button -->
-	<Button
-		disabled={!canConfirm}
-		onclick={handleConfirm}
-		class="w-full"
-	>
+	<Button disabled={!canConfirm} onclick={handleConfirm} class="w-full">
 		{intarsia.confirmColours}
 	</Button>
 </div>

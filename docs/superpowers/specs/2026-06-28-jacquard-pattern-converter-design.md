@@ -16,21 +16,21 @@ L’utente carica una foto, sceglie le dimensioni (un pixel = una maglia × una 
 
 ## Decisioni di prodotto (riepilogo)
 
-| Tema | Decisione |
-| --- | --- |
-| Approccio architetturale | **Interfaccia unica** + **pipeline modulare** interna (opzione #2 in brainstorming) |
-| Dimensioni output | **Larghezza in maglie**; altezza in corse **calcolata** da ritaglio + rapporto aghi/corse |
-| Limite macchina | Massimo **200 aghi**; se superato → **avviso**, scelta manuale dell’utente (non blocco automatico) |
-| Rapporto aghi/corse | Campi **maglie/cm** e **corse/cm** modificabili (es. 4,5 × 6,4); sezione UI: «Rapporto aghi/corse» (non «tensione») |
-| Ritaglio | **Manuale** (riquadro trascinabile) + pulsante **«Adatta proporzioni»** al rapporto pattern |
-| Conversione colore | **Soglia** (cursore bianco/nero) + **contrasto** + **inversione**; **niente dithering** in v1 |
-| Colori semantici | **Bianco = background**; **nero = foreground** |
-| Anteprima | Pixel **quadrati** per lavorare; toggle **«Come sul tessuto»** per vista proporzioni corrette |
-| Export AYAB | PNG: larghezza px = maglie, altezza px = corse, pixel quadrati, solo bianco/nero puro |
-| Export documentazione | PNG annotato + PDF (griglia, numerazione, legenda, dimensioni cm) |
-| Layout pagina | **Tutto su una schermata** (editor); controlli sinistra, anteprima destra; layout più ampio del tool aghi |
-| Privacy | Elaborazione **solo nel browser**; nessun upload server |
-| Lingue | Italiano e inglese (Paraglide, come hub) |
+| Tema                     | Decisione                                                                                                           |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| Approccio architetturale | **Interfaccia unica** + **pipeline modulare** interna (opzione #2 in brainstorming)                                 |
+| Dimensioni output        | **Larghezza in maglie**; altezza in corse **calcolata** da ritaglio + rapporto aghi/corse                           |
+| Limite macchina          | Massimo **200 aghi**; se superato → **avviso**, scelta manuale dell’utente (non blocco automatico)                  |
+| Rapporto aghi/corse      | Campi **maglie/cm** e **corse/cm** modificabili (es. 4,5 × 6,4); sezione UI: «Rapporto aghi/corse» (non «tensione») |
+| Ritaglio                 | **Manuale** (riquadro trascinabile) + pulsante **«Adatta proporzioni»** al rapporto pattern                         |
+| Conversione colore       | **Soglia** (cursore bianco/nero) + **contrasto** + **inversione**; **niente dithering** in v1                       |
+| Colori semantici         | **Bianco = background**; **nero = foreground**                                                                      |
+| Anteprima                | Pixel **quadrati** per lavorare; toggle **«Come sul tessuto»** per vista proporzioni corrette                       |
+| Export AYAB              | PNG: larghezza px = maglie, altezza px = corse, pixel quadrati, solo bianco/nero puro                               |
+| Export documentazione    | PNG annotato + PDF (griglia, numerazione, legenda, dimensioni cm)                                                   |
+| Layout pagina            | **Tutto su una schermata** (editor); controlli sinistra, anteprima destra; layout più ampio del tool aghi           |
+| Privacy                  | Elaborazione **solo nel browser**; nessun upload server                                                             |
+| Lingue                   | Italiano e inglese (Paraglide, come hub)                                                                            |
 
 ---
 
@@ -48,8 +48,8 @@ L’utente carica una foto, sceglie le dimensioni (un pixel = una maglia × una 
 
 ### Struttura desktop
 
-| Zona sinistra (~1/3) | Zona destra (~2/3) |
-| --- | --- |
+| Zona sinistra (~1/3)                     | Zona destra (~2/3)                           |
+| ---------------------------------------- | -------------------------------------------- |
 | Sezioni controlli (scroll se necessario) | Anteprima pattern, aggiornata in tempo reale |
 
 Su mobile/tablet: anteprima sopra, controlli sotto.
@@ -115,11 +115,11 @@ Ogni fase è un modulo con interfaccia definita; l’anteprima si aggiorna dopo 
 
 ### Input utente
 
-| Campo | Esempio | Vincoli |
-| --- | --- | --- |
-| Larghezza in maglie | 120 | 1–200 (avviso se > 200) |
-| Maglie per cm | 4,5 | > 0 |
-| Corse per cm | 6,4 | > 0 |
+| Campo               | Esempio | Vincoli                 |
+| ------------------- | ------- | ----------------------- |
+| Larghezza in maglie | 120     | 1–200 (avviso se > 200) |
+| Maglie per cm       | 4,5     | > 0                     |
+| Corse per cm        | 6,4     | > 0                     |
 
 ### Calcolo altezza in corse
 
@@ -144,11 +144,11 @@ Sempre visibile sotto i campi, es.:
 
 ### Avvisi
 
-| Condizione | Comportamento |
-| --- | --- |
-| Maglie > 200 | Avviso vicino al campo |
-| Corse > 500 | Avviso informativo «Pattern molto lungo» |
-| maglie/cm o corse/cm ≤ 0 | Campo non valido; calcolo sospeso |
+| Condizione               | Comportamento                            |
+| ------------------------ | ---------------------------------------- |
+| Maglie > 200             | Avviso vicino al campo                   |
+| Corse > 500              | Avviso informativo «Pattern molto lungo» |
+| maglie/cm o corse/cm ≤ 0 | Campo non valido; calcolo sospeso        |
 
 ---
 
@@ -158,12 +158,12 @@ Sempre visibile sotto i campi, es.:
 
 File PNG per import in AYAB:
 
-| Proprietà | Valore |
-| --- | --- |
-| Larghezza (px) | = numero maglie |
-| Altezza (px) | = numero corse |
-| Pixel | Quadrati; solo `#000000` e `#FFFFFF` |
-| Contenuto | Solo bitmap; niente griglia, numeri, legenda |
+| Proprietà      | Valore                                       |
+| -------------- | -------------------------------------------- |
+| Larghezza (px) | = numero maglie                              |
+| Altezza (px)   | = numero corse                               |
+| Pixel          | Quadrati; solo `#000000` e `#FFFFFF`         |
+| Contenuto      | Solo bitmap; niente griglia, numeri, legenda |
 
 Nome file suggerito: `pattern-{maglie}x{corse}-ayab.png`
 
@@ -190,12 +190,12 @@ Scarica **PNG annotato** + **PDF**.
 
 ## Gestione errori
 
-| Situazione | Messaggio (intent) |
-| --- | --- |
-| Formato non supportato | «Formato non supportato. Usa JPG, PNG o WebP.» |
-| File troppo grande | «Immagine troppo grande. Prova con un file più leggero.» |
-| Nessuna immagine | Export disabilitati; «Carica un’immagine per iniziare» |
-| Export con maglie > 200 | Dialogo di conferma prima del download |
+| Situazione              | Messaggio (intent)                                       |
+| ----------------------- | -------------------------------------------------------- |
+| Formato non supportato  | «Formato non supportato. Usa JPG, PNG o WebP.»           |
+| File troppo grande      | «Immagine troppo grande. Prova con un file più leggero.» |
+| Nessuna immagine        | Export disabilitati; «Carica un’immagine per iniziare»   |
+| Export con maglie > 200 | Dialogo di conferma prima del download                   |
 
 Tutti i messaggi in IT e EN via Paraglide.
 
