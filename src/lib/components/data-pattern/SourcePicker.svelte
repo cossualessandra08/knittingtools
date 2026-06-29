@@ -58,8 +58,7 @@
 						href={source.badgeHref}
 						class="underline"
 						onclick={(e) => e.stopPropagation()}
-						target="_blank"
-						rel="noopener noreferrer">{dataPattern.whatIsSent}</a
+						>{dataPattern.whatIsSent}</a
 					>
 				</span>
 			{:else}
@@ -70,3 +69,8 @@
 		</button>
 	{/each}
 </div>
+
+<p id="terrain-privacy" class="sr-only">
+	Terrain mode sends only the selected map area coordinates (bounding box) to Open-Elevation for
+	elevation data. No personal data is sent.
+</p>
